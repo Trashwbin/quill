@@ -301,4 +301,4 @@ graph TB
 
 [^10]: 千问 App "每日首单必减"活动规则：每日发放 1500 万份优惠券，覆盖外卖餐饮、零食百货、酒店、电影票、机票、火车票、打车等场景。服务由淘宝闪购、大麦、飞猪、高德提供履约支持，支付宝提供支付及优惠核销能力。数据来源：千问 App 活动规则页面（2026 年 2 月 18 日起）。
 
-[^11]: 钉钉全面 CLI 化改造：拥有 8 亿用户的钉钉完成底层代码重写，全面转向 CLI 架构。与 DOS 时代的 CLI 不同，这次是专为 AI 设计——命令可以很长（AI 不需要记），输出是 JSON（结构化数据）。参见腾讯新闻，["钉钉已经彻底 CLI 化了"](https://view.inews.qq.com/a/20260319A05MMX00)；钉钉国际官网，["DingTalk completes CLI interface upgrade"](https://www.dingtalk-global.com/news/activity/dingtalk-cli-ai-agent-support-260319)。
+[^11]: 钉钉全面 CLI 化改造：拥有 8 亿用户的钉钉完成底层代码重写，全面转向 CLI 架构。与 DOS 时代的 CLI 不同，这次是专为 AI 设计——命令可以很长（AI 不需要记），输出是 JSON（结构化数据）。参见腾讯新闻，["钉钉已经彻底 CLI 化了"](https://view.inews.qq.com/a/20260319A05MMX00)；潮起网，["钉钉 2.0 重磅升级：全量底层代码重写，实现全面 CLI 命令行界面化"](https://www.ichaoqi.com/ganhuo/2026/0317/81048.html)。
