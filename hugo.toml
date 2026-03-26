@@ -119,25 +119,25 @@ buildExpired = false
     [[languages.en.menu.main]]
       identifier = "posts"
       name = "Posts"
-      url = "/posts/"
+      url = "/en/posts/"
       weight = 10
 
     [[languages.en.menu.main]]
       identifier = "archives"
       name = "Archives"
-      url = "/archives/"
+      url = "/en/archives/"
       weight = 20
 
     [[languages.en.menu.main]]
       identifier = "tags"
       name = "Tags"
-      url = "/tags/"
+      url = "/en/tags/"
       weight = 30
 
     [[languages.en.menu.main]]
       identifier = "search"
       name = "Search"
-      url = "/search/"
+      url = "/en/search/"
       weight = 40
 
 [outputs]
