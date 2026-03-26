@@ -31,9 +31,11 @@ graph TB
     style S3 fill:#94a3b8,color:#fff
 ```
 
-策略三不需要多说——打开任何一个 Agent 产品的官网，你都能看到类似的承诺："自动化你的工作流""连接你所有的工具"。OpenClaw 社区有自动生成飞书日报[^2]和财务报表的 Skill；微软的 AutoGen（55k GitHub star）展示了 KPMG 审计自动化和 BMW 遥测分析等多 Agent 协作案例[^3]。Demo 视频里数据在多个平台之间流转得行云流水。
+策略三的代表产品不少。OpenClaw 在 Mac mini 上 24/7 运行，社区有自动生成飞书日报[^2]和财务报表的 Skill；Perplexity 在 2026 年 3 月发布了 Personal Computer[^5]，同样跑在 Mac mini 上，接入 Gmail、Slack、GitHub、Notion、Salesforce 等 40+ 服务，月费 $200；Anthropic 的 Claude Cowork 则定位本地自主 Agent。Demo 视频里数据在多个平台之间流转得行云流水。
 
 这些能力是真实的。但它们有一个共同的前提：**你已经拥有所有工具的 API 权限。** [第二篇](/posts/agent-bottleneck-data-sovereignty/)已经分析过，这个前提在大多数真实工作环境中并不成立——平台可能不开放，即使开放了你的公司 IT 也可能不批准。
+
+有一个值得注意的现象：同样是让 AI 代替用户操作应用，在 PC 端（OpenClaw）被热捧，在手机端（豆包手机）却遭微信、支付宝等主流 App 联合封杀[^6]。原因很清楚——手机端的每个 App 都是封闭生态，系统级 AI 助手直接踩在了它们流量变现的命门上。
 
 重点看前两种策略。
 
@@ -104,20 +106,20 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph "翻墙方案"
-        D1["豆包手机<br/>屏幕级 RPA<br/>模拟人点按钮"]
-        D2["OpenCLI / CLI Anything<br/>逆向 API 封装"]
-        D3["浏览器扩展<br/>借用浏览器登录态"]
+    subgraph "绕过授权的方案"
+        D1["AutoGLM（智谱）<br/>云虚拟手机 + 视觉读屏"]
+        D2["豆包手机（字节/UI-TARS）<br/>手机端 GUI Agent"]
+        D3["Manus<br/>Firecracker microVM 沙箱"]
     end
     
-    D1 --> Problem["共同问题"]
+    D1 --> Problem["共同特征"]
     D2 --> Problem
     D3 --> Problem
     
-    Problem --> P1["脆弱 — UI 一改就废"]
-    Problem --> P2["灰色 — 随时被封号"]
-    Problem --> P3["慢 — 比真正的 API 慢一个数量级"]
-    Problem --> P4["没有真正拿到数据结构"]
+    Problem --> P1["不走 API 正门"]
+    Problem --> P2["脆弱 — 平台更新即失效"]
+    Problem --> P3["灰色 — 法律风险持续存在"]
+    Problem --> P4["被封杀 — 豆包手机遭多 App 围剿"]
     
     style D1 fill:#6366f1,color:#fff
     style D2 fill:#6366f1,color:#fff
@@ -125,11 +127,15 @@ graph TB
     style Problem fill:#ef4444,color:#fff
 ```
 
-豆包手机是最具代表性的案例——平台不提供 API，它就直接读取屏幕内容，模拟用户的点击操作。
+这条路线上有几个代表性产品，技术形态各不相同但本质一致：
 
-**本质仍然是爬虫。** 从爬取网页变成了爬取屏幕。技术形态更新了，但脆弱性和法律灰色地带没有任何改善。
+**智谱 AutoGLM**[^7]：为 AI 配备"云端虚拟手机"，Agent 在云虚拟机里通过视觉模型理解屏幕内容，模拟人类操作完成跨 App 任务（点外卖、订机票、发微博）。不需要任何 API——它直接"看"屏幕。
 
-OpenCLI 等项目的思路类似——逆向工程封装平台的非公开接口，包装成 CLI 工具。短期能用，但平台一旦更新接口就会失效，且法律风险始终存在。
+**豆包手机（字节/UI-TARS）**[^6]：手机端 GUI Agent，同样基于视觉驱动。一条语音指令就能完成从约人吃饭到订好场地、同步行程的全流程操作。上线后被微信、支付宝等多款 App 封杀，一部 3499 元的手机在二手市场被炒到 3.6 万元。
+
+**Manus**[^8]：每个任务分配一台独立的 Firecracker microVM（与 AWS Lambda 同一技术），Agent 在完整的云端沙箱环境里运行浏览器、写代码、操作文件，任务完成后交付结果。
+
+**技术形态不同，本质一致：不走 API 正门，绕过平台的授权体系来获取数据和执行操作。** 从爬网页到爬屏幕到开虚拟机，手段在升级，但脆弱性和灰色地带没有根本改善——UI 改版即失效、平台封杀即停摆、法律风险始终悬着。
 
 而且"翻墙"不只是脆弱——**还危险**。OpenClaw 的安全事件[^1]就是警示：
 
@@ -276,3 +282,11 @@ graph TB
 [^3]: Microsoft AutoGen 框架（55,000+ GitHub stars），2026 年 Q1 与 Semantic Kernel 统一为 Microsoft Agent Framework。早期企业采用案例包括 KPMG 审计自动化和 BMW 车辆遥测分析。参见 [Microsoft Agent Framework GA: Production Adoption Strategy](https://jangwook.net/en/blog/en/microsoft-agent-framework-ga-production-strategy/)。
 
 [^4]: 阿里巴巴于 2026 年 3 月 17 日发布企业级 AI Agent 平台"悟空"，内嵌钉钉，阿里生态 ToB 能力以 Skill 形式接入。参见[新浪财经报道](https://finance.sina.com.cn/roll/2026-03-17/doc-inhrhxzp8083854.shtml)、[鲸林向海深度分析](https://www.itsolotime.com/archives/26159)。
+
+[^5]: Perplexity 于 2026 年 3 月 11 日在 Ask 2026 开发者大会上发布 Personal Computer，运行在 Mac mini 上，$200/月（Perplexity Max 订阅），接入 40+ 服务。参见 [The Verge 报道](https://www.theverge.com/ai-artificial-intelligence/893536/perplexitys-personal-computer-turns-your-spare-mac-into-an-ai-agent)。
+
+[^6]: 豆包手机（字节跳动 UI-TARS 技术）于 2025 年 12 月发布技术预览版，随后遭到微信、支付宝等多款主流 App 封杀。一部 3499 元的手机在二手市场被炒至 3.6 万元。参见[新浪财经："Manus、豆包手机没成的事，为何被一只'龙虾'做到了？"](https://finance.sina.com.cn/wm/2026-03-17/doc-inhrieik2013061.shtml)。
+
+[^7]: 智谱 AutoGLM：全球首个手机 Agent，基于 GLM-4.5V 多模态模型，采用"云端虚拟手机"架构，Agent 在沙箱中运行。2025 年 12 月开源（Apache-2.0）。参见 [GitHub: Open-AutoGLM](https://github.com/zai-org/Open-AutoGLM)。
+
+[^8]: Manus：通用 Agent 平台，每个任务分配独立 Firecracker microVM 沙箱（2 vCPU, 8GB RAM），Agent 在完整云端环境中自主运行。2026 年被 Meta 收购。参见 [Manus Sandbox 核心机制揭秘](https://www.53ai.com/news/LargeLanguageModel/2026011671960.html)。
