@@ -1,8 +1,10 @@
 baseURL = 'https://blog.trashwbin.top/'
-languageCode = 'zh-cn'
 title = 'Quill'
 theme = 'PaperMod'
 paginate = 10
+
+defaultContentLanguage = 'zh'
+defaultContentLanguageInSubdir = false
 
 enableRobotsTXT = true
 buildDrafts = false
@@ -14,7 +16,6 @@ buildExpired = false
 
 [params]
   env = "production"
-  description = "Trashwbin's personal blog"
   author = "Abin"
   defaultTheme = "auto"  # auto / dark / light
   ShowReadingTime = true
@@ -29,10 +30,6 @@ buildExpired = false
   disableScrollToTop = false
   hidemeta = false
   hideSummary = false
-
-  [params.homeInfoParams]
-    Title = "Hey there"
-    Content = "Welcome to my blog. I write about things I find interesting."
 
   [[params.socialIcons]]
     name = "github"
@@ -67,29 +64,85 @@ buildExpired = false
     [markup.goldmark.renderer]
       unsafe = true
 
-[[menu.main]]
-  identifier = "posts"
-  name = "Posts"
-  url = "/posts/"
-  weight = 10
+# ── Languages ────────────────────────────────────────────
 
-[[menu.main]]
-  identifier = "archives"
-  name = "Archives"
-  url = "/archives/"
-  weight = 20
+[languages]
 
-[[menu.main]]
-  identifier = "tags"
-  name = "Tags"
-  url = "/tags/"
-  weight = 30
+  [languages.zh]
+    languageName = '中文'
+    languageCode = 'zh-CN'
+    weight = 1
+    title = 'Quill'
+    contentDir = 'content/zh'
 
-[[menu.main]]
-  identifier = "search"
-  name = "Search"
-  url = "/search/"
-  weight = 40
+    [languages.zh.params]
+      description = "Abin 的个人博客"
+
+      [languages.zh.params.homeInfoParams]
+        Title = "Hey 👋"
+        Content = "我是 Abin，这里记录我对技术和产品的思考。"
+
+    [[languages.zh.menu.main]]
+      identifier = "posts"
+      name = "文章"
+      url = "/posts/"
+      weight = 10
+
+    [[languages.zh.menu.main]]
+      identifier = "archives"
+      name = "归档"
+      url = "/archives/"
+      weight = 20
+
+    [[languages.zh.menu.main]]
+      identifier = "tags"
+      name = "标签"
+      url = "/tags/"
+      weight = 30
+
+    [[languages.zh.menu.main]]
+      identifier = "search"
+      name = "搜索"
+      url = "/search/"
+      weight = 40
+
+  [languages.en]
+    languageName = 'EN'
+    languageCode = 'en-US'
+    weight = 2
+    title = 'Quill'
+    contentDir = 'content/en'
+
+    [languages.en.params]
+      description = "Abin's personal blog"
+
+      [languages.en.params.homeInfoParams]
+        Title = "Hey 👋"
+        Content = "I'm Abin. I write about tech and product thinking."
+
+    [[languages.en.menu.main]]
+      identifier = "posts"
+      name = "Posts"
+      url = "/posts/"
+      weight = 10
+
+    [[languages.en.menu.main]]
+      identifier = "archives"
+      name = "Archives"
+      url = "/archives/"
+      weight = 20
+
+    [[languages.en.menu.main]]
+      identifier = "tags"
+      name = "Tags"
+      url = "/tags/"
+      weight = 30
+
+    [[languages.en.menu.main]]
+      identifier = "search"
+      name = "Search"
+      url = "/search/"
+      weight = 40
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
