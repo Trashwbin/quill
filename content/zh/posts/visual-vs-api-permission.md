@@ -31,56 +31,58 @@ graph TB
     style S3 fill:#94a3b8,color:#fff
 ```
 
-策略三不需要多说——打开任何一个 Agent 产品的官网，你都能看到类似的承诺："自动化你的工作流""连接你所有的工具"。OpenClaw 演示在飞书里自动生成报表并推送给你；AutoGen 展示多 Agent 协作帮你做 PPT；各种 Agent 框架的 demo 视频里，数据在多个平台之间流转得行云流水。
+策略三不需要多说——打开任何一个 Agent 产品的官网，你都能看到类似的承诺："自动化你的工作流""连接你所有的工具"。OpenClaw 社区有自动生成飞书日报[^2]和财务报表的 Skill；微软的 AutoGen（55k GitHub star）展示了 KPMG 审计自动化和 BMW 遥测分析等多 Agent 协作案例[^3]。Demo 视频里数据在多个平台之间流转得行云流水。
 
-这些演示跑得确实流畅。但它们有一个共同的前提：**你已经拥有所有工具的 API 权限。** [第二篇](/posts/agent-bottleneck-data-sovereignty/)已经分析过，这个前提在大多数真实工作环境中并不成立——平台可能不开放，即使开放了你的公司 IT 也可能不批准。
+这些能力是真实的。但它们有一个共同的前提：**你已经拥有所有工具的 API 权限。** [第二篇](/posts/agent-bottleneck-data-sovereignty/)已经分析过，这个前提在大多数真实工作环境中并不成立——平台可能不开放，即使开放了你的公司 IT 也可能不批准。
 
 重点看前两种策略。
 
-## 策略一：在围墙里做闭环——阿里的路径
+## 策略一：在围墙里做闭环——阿里"悟空"的实践
 
-在跨平台开放看不到希望的情况下，阿里选了另一条路：**不打破围墙，在自己的围墙里先把闭环做了。**
+2026 年 3 月 17 日，阿里巴巴正式发布了企业级 AI Agent 平台"悟空"[^4]。这不是一个概念产品，而是已经开启邀测、直接内嵌到超 2000 万企业组织的钉钉之中的独立应用。
+
+钉钉 CEO 陈航在发布会上说了一句值得注意的话：
+
+> "和市面上所有的龙虾 Agent 不一样，悟空天然就长在企业组织中，可以在真实的企业环境中安全使用。"
+
+"悟空"的核心策略是：**不打破围墙，在自己的围墙里先把闭环做了。**
 
 ```mermaid
 graph TB
-    User["用户（一个支付宝账号）"]
+    User["企业用户（一个钉钉账号）"]
     
-    User --> TB["淘宝<br/>买东西"]
-    User --> GD["高德<br/>出行"]
-    User --> FZ["飞猪<br/>旅行"]
-    User --> ZFB["支付宝<br/>支付"]
-    User --> MF["蚂蚁<br/>理财"]
-    User --> ELM["饿了么<br/>吃饭"]
-    User --> Health["阿里健康<br/>看病"]
+    User --> DD["钉钉<br/>沟通、审批、日程"]
+    User --> TB["淘宝/天猫<br/>电商运营"]
+    User --> ALI1688["1688<br/>供应链选品"]
+    User --> ZFB["支付宝<br/>商户流水"]
+    User --> Cloud["阿里云<br/>技术基础设施"]
     
     style User fill:#6366f1,color:#fff
 ```
 
-阿里手上的牌恰好覆盖了一个人日常生活的完整链路。一个 Agent 只接阿里系的数据，就已经能回答：
+关键的技术细节是：钉钉为此进行了**完整的 CLI 化改造**——"悟空"能够原生操作钉钉的上千项能力，而非模拟人类点击图形界面。结合[第一篇](/posts/cli-vs-mcp-vs-skills/)的分析，这恰恰验证了 CLI 在 Agent 工具调用中的效率优势。
 
-> "帮我规划下周末带家人去杭州玩两天，预算 3000，我妈腿不好别走太多路。"
+阿里旗下淘宝、天猫、1688、支付宝、阿里云等 B 端商业能力正以 Skill 形式逐步接入悟空。首批覆盖电商、跨境电商、开发、门店、制造、法律、财税等十大行业场景[^4]。
 
-高德知道路线和步行距离，飞猪知道酒店，淘宝能买装备，支付宝能付钱，阿里健康知道老人身体状况。
+**Auth 问题在这个架构下天然解决了——AI Agent 自动继承企业在钉钉中的权限规则，所有操作在安全沙箱中运行。** 这与[第二篇](/posts/agent-bottleneck-data-sovereignty/)分析的"组织管控"壁垒形成鲜明对比：悟空绕过了这个壁垒，因为它本身就是组织的一部分。
 
-**Auth 问题天然解决了——你已经登录了支付宝，整个阿里系共享一套账号体系。**
-
-对比其他玩家：
+对比其他玩家的生态覆盖：
 
 | 玩家 | 有什么 | 缺什么 |
 |------|--------|--------|
-| **阿里** | 电商+支付+出行+健康+本地生活 | 社交、内容 |
-| **腾讯** | 社交+内容+支付 | 电商闭环、出行 |
-| **字节** | 内容+本地生活 | 支付、出行、健康 |
-| **百度** | 搜索+地图+AI 技术 | 交易闭环、支付 |
+| **阿里（悟空）** | 电商+支付+供应链+云+企业协作 | 社交、内容 |
+| **腾讯** | 社交+内容+支付+企业微信 | 电商闭环、供应链 |
+| **字节** | 内容+本地生活+飞书 | ���付、供应链 |
+| **百度** | 搜索+地图+AI 模型 | 交易闭环、企业协作 |
 
-阿里的优势：**离交易最近。** Agent 的终极价值不是聊天，是帮你完成决策→执行→支付的闭环。阿里是唯一从头到尾都能闭环的。
+阿里的优势：**离交易最近。** Agent 的终极价值不是聊天，是帮你完成决策→执行→支付的闭环。在 B 端场景中，阿里是目前唯一能从选品、比价、下单、物流到结算全链路闭环的平台。
 
 ### 但这里存在一个结构性矛盾
 
 ```mermaid
 graph LR
     subgraph "用户想要的"
-        U["Agent 帮我做<b>最优</b>决策"]
+        U["Agent 帮我做最优决策"]
     end
     
     subgraph "阿里想要的"
@@ -89,12 +91,12 @@ graph LR
     
     U --> Gap["冲突点"]
     A --> Gap
-    Gap --> Result["飞猪订了酒店<br/>但不会告诉你携程便宜 200"]
+    Gap --> Result["1688 选了供应商<br/>但不会告诉你拼多多有更低价"]
     
     style Gap fill:#ef4444,color:#fff
 ```
 
-**私有生态 Agent 的本质：用 AI 的便利性，换取用户对比价权的放弃。**
+**私有生态 Agent 的本质：用 AI 的便利性，换取用户对比价权的放弃。** 悟空能帮你在 1688 上全景比价、自动排雷，但它不会帮你去拼多多看看同款是否更便宜。
 
 ## 策略二：翻墙——爬虫的新形态
 
@@ -268,3 +270,9 @@ graph TB
 ## 参考资料
 
 [^1]: OpenClaw 安全事件数据来自 ScaleKit, ["MCP vs CLI: Benchmarking AI Agent Cost & Reliability"](https://www.scalekit.com/blog/mcp-vs-cli-use), Mar 2026。另见 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/) 中的引用。
+
+[^2]: OpenClaw 社区的飞书集成 Skills，包括 [feishu-ai-dailyreport](https://playbooks.com/skills/openclaw/skills/feishu-ai-dailyreport)（团队自动日报）和 [finance-report-analyzer](https://playbooks.com/skills/openclaw/skills/finance-report-analyzer)（财务报表生成）。
+
+[^3]: Microsoft AutoGen 框架（55,000+ GitHub stars），2026 年 Q1 与 Semantic Kernel 统一为 Microsoft Agent Framework。早期企业采用案例包括 KPMG 审计自动化和 BMW 车辆遥测分析。参见 [Microsoft Agent Framework GA: Production Adoption Strategy](https://jangwook.net/en/blog/en/microsoft-agent-framework-ga-production-strategy/)。
+
+[^4]: 阿里巴巴于 2026 年 3 月 17 日发布企业级 AI Agent 平台"悟空"，内嵌钉钉，阿里生态 ToB 能力以 Skill 形式接入。参见[新浪财经报道](https://finance.sina.com.cn/roll/2026-03-17/doc-inhrhxzp8083854.shtml)、[鲸林向海深度分析](https://www.itsolotime.com/archives/26159)。
