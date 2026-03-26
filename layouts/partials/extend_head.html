@@ -1,5 +1,4 @@
 <style>
-/* Mermaid: natural size, scroll if wider than screen */
 .mermaid {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -7,4 +6,111 @@
   margin: 1.5em 0;
   padding: 0.5em 0;
 }
+
+@media (min-width: 1280px) {
+  .post-with-sidebar {
+    display: flex;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .sidebar-toc {
+    width: 220px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .sidebar-toc-inner {
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    padding-right: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .sidebar-toc-inner::-webkit-scrollbar { width: 2px; }
+  .sidebar-toc-inner::-webkit-scrollbar-thumb { background: var(--tertiary); border-radius: 2px; }
+
+  .sidebar-toc-title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+    letter-spacing: 0.02em;
+  }
+
+  .sidebar-toc-inner #TableOfContents ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .sidebar-toc-inner #TableOfContents ul ul {
+    padding-left: 0.85rem;
+  }
+
+  .sidebar-toc-inner #TableOfContents a {
+    display: block;
+    padding: 0.2rem 0;
+    color: var(--secondary);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    padding-left: 0.6rem;
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-toc-inner #TableOfContents a:hover {
+    color: var(--primary);
+    border-left-color: var(--tertiary);
+  }
+
+  .sidebar-toc-inner #TableOfContents a.active {
+    color: var(--primary);
+    border-left-color: var(--primary);
+    font-weight: 500;
+  }
+
+  .post-single.has-sidebar {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1279px) {
+  .sidebar-toc { display: none; }
+}
 </style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var toc = document.querySelector(".sidebar-toc-inner");
+  if (!toc) return;
+
+  var links = toc.querySelectorAll("#TableOfContents a");
+  if (links.length === 0) return;
+
+  var headings = [];
+  links.forEach(function(link) {
+    var id = link.getAttribute("href").slice(1);
+    var el = document.getElementById(id);
+    if (el) headings.push({ el: el, link: link });
+  });
+
+  function update() {
+    var scrollY = window.scrollY + 100;
+    var current = null;
+    for (var i = 0; i < headings.length; i++) {
+      if (headings[i].el.offsetTop <= scrollY) current = i;
+    }
+    links.forEach(function(l) { l.classList.remove("active"); });
+    if (current !== null) headings[current].link.classList.add("active");
+  }
+
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+});
+</script>
