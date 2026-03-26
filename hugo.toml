@@ -103,6 +103,12 @@ buildExpired = false
       weight = 20
 
     [[languages.zh.menu.main]]
+      identifier = "series"
+      name = "专栏"
+      url = "/series/"
+      weight = 25
+
+    [[languages.zh.menu.main]]
       identifier = "tags"
       name = "标签"
       url = "/tags/"
