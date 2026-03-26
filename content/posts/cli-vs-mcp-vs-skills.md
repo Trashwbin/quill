@@ -1,58 +1,87 @@
 ---
-title: "我用一条命令部署了博客，然后想到了微信"
+title: "CLI vs MCP vs Skills：整个争论都问错了问题"
 date: 2026-03-26
 draft: false
 tags: ["AI Agent", "MCP", "CLI", "Skills", "OAuth"]
-summary: "vercel login 十秒完成 OAuth，gh auth login 也是。技术上 wx auth login 一样能做。但它永远不会出现。CLI vs MCP 的争论问错了问题——瓶颈不是协议，是水龙头愿不愿意打开。"
+summary: "2026 年 AI Agent 社区最热的架构之争。CLI 派说 MCP 浪费 token，MCP 派说标准化才是未来，Skills 派说一个 Markdown 就够了。但做过 MCP Server 之后，我发现整个争论都在回避真正的问题。"
 mermaid: true
 ---
 
-## 从一次部署说起
+## 他们在吵什么
 
-今天我用 OpenCode（一个 CLI 形式的 AI Agent）部署这个博客。过程中它调用了 Vercel CLI：
+2026 年 3 月，AI Agent 圈最热的话题不是哪个模型更强，而是一个听起来很无聊的架构问题：
+
+> Agent 该用什么方式调用外部工具？
+
+三个阵营打得不可开交：
+
+**MCP 派**（Model Context Protocol）：Anthropic 2024 年底推出的开放标准。通过 JSON-RPC 协议统一封装各类服务接口，Agent 一次接入就能跨平台调用多种工具。OpenAI、Google、Microsoft、AWS 全部跟进。听起来很美好。
+
+**CLI 派**：直接让 Agent 跑 shell 命令——`git log`、`gh pr list`、`curl`、`kubectl`。不需要任何协议层，不需要额外服务器。50 年前的 `grep` 和 `awk` 在 AI 时代焕发第二春。
+
+**Skills 派**：一个 Markdown 文件当"小抄"，教 Agent 在什么场景用什么工具。30 token 待命，触发时才加载完整指令。Flask 作者 Armin Ronacher 全面转向这个方案。
+
+## 最新战况（吃瓜指南）
+
+MCP 正在被"退货"：
+
+- Perplexity 发博客宣布准备全面抛弃 MCP 转向 CLI
+- 开发者吐槽："MCP 就像给自行车装火箭推进器，太重了"
+- 19 万 star 的 Agent 框架作者直接说 "MCP was a mistake"
+- **连 MCP 的"亲爹" Anthropic，自家的 Claude Code 也更像 CLI 而非 MCP**
+
+CLI 的"文艺复兴"：
+
+- Andrej Karpathy 2026 年 2 月说 CLI "super exciting precisely because they are legacy"
+- GitHub 上最火的项目从"MCP 工具"变成"AI 命令行助手"
+- Google 专门开源了给 AI 用的命令行工具
+
+Skills 的悄然崛起：
+
+- Armin Ronacher 全面从 MCP 转向 Skills
+- OpenCode / Claude Code 的 Skills 体系越来越成熟
+- 社区开始出现"删掉所有 MCP，用 Skills + CLI 替代"的实践文章
+
+## CLI 赢在哪？技术层面拆解
+
+### 1. MCP 的上下文污染
+
+MCP 最大的问题：**Agent 一启动就要把所有工具的 schema 塞进上下文。**
+
+GitHub 的 MCP Server 暴露 43 个工具，连接它就往上下文注入约 55,000 token 的工具定义。还没开始干活，token 预算花掉一大半。接 10 个 MCP Server、100 个工具？上下文直接爆炸。
+
+CLI 完全不同——**渐进式发现**。Agent 先跑 `gh --help` 看有什么命令，需要时再 `gh pr --help` 看子命令参数。信息按需加载，不是开局全塞。
+
+### 2. LLM 天然会用 CLI
+
+LLM 训练数据里有几十年的 Unix 文档、Stack Overflow 回答、GitHub 上的 shell 脚本。模型天生认识 `git`、`curl`、`grep`、`docker`。
+
+MCP 呢？大量的 JSON schema，模型更难处理，还要输出格式化的 JSON token。你自定义的 MCP 工具，模型从训练数据里学不到怎么调。
+
+### 3. 管道操作
+
+MCP 工具返回结果如果需要后处理（过滤、搜索、截取），得写额外代码。CLI 直接 pipe：
 
 ```bash
-$ vercel login
-→ 自动打开浏览器 OAuth 页面
-→ 点一下授权
-→ CLI 自动拿到 token
-→ 后续所有操作无感
-
-$ vercel --prod
-→ 构建、上传、部署，一气呵成
+gh pr list --json number,title | jq '.[] | select(.title | contains("fix"))'
 ```
 
-整个 auth 流程十秒钟。我甚至没意识到它发生了。
+Agent 输出几个命令用 `|` 连起来，后处理就搞定了。更简单、更灵活、维护成本更低。
 
-这让我想到 `gh auth login`——GitHub 的 CLI 也是同样的体验。弹出浏览器，OAuth 授权，本地保存 token，之后 `gh pr create`、`gh repo clone` 随便用。
+### 4. CLI + Skills 天然搭配
 
-然后我想：如果微信也有一个 `wx auth login` 呢？
+Skill 文件里教 Agent 用 CLI，干净利落：
 
-```bash
-$ wx auth login
-→ 弹出微信扫码页面
-→ 手机确认授权
-→ 本地保存 token
-→ wx send abin "你好"
-→ wx moments list
-→ wx pay transfer ...
+```markdown
+## 查看 PR 状态
+gh pr list --state open --json number,title,author
 ```
 
-**技术上，跟 `vercel login` 和 `gh auth login` 一模一样。** 没有任何技术障碍。
+换成 MCP？Skill 文件会充斥 function call、JSON schema，整个文档混乱不堪。
 
-但它永远不会出现。
+### 数据说话
 
-## 2026 年最热的技术争论
-
-AI Agent 社区今年最火的话题：Agent 该用什么方式调用外部工具？
-
-三个阵营：
-
-- **CLI 派**：直接跑 shell 命令，`git`、`gh`、`curl`，LLM 训练数据里就有，便宜、快、可靠
-- **MCP 派**：Anthropic 推出的标准协议，JSON schema + OAuth，大厂全部跟进
-- **Skills 派**：一个 Markdown 文件当"小抄"，教 Agent 怎么用工具，30 token 待命
-
-ScaleKit 做了 75 次基准测试，同一个 GitHub 任务：
+ScaleKit 75 次基准测试，同一个 GitHub 任务：
 
 ```mermaid
 graph LR
@@ -75,68 +104,62 @@ graph LR
 |------|-----------------|--------|
 | CLI | ~$3.20 | 100% |
 | CLI + Skills | ~$4.50 | 100% |
-| MCP | ~$55.20 | 72% |
+| MCP | ~$55.20 | 72%（28% 超时） |
 
-CLI 阵营的结论：MCP 就是浪费钱。Andrej Karpathy 说 CLI "super exciting"，19 万 star 的 Agent 框架作者说 "MCP was a mistake"，Flask 作者全面转向 Skills。
+CLI 便宜 17 倍，可靠性 100% vs 72%。碾压。
 
-MCP 完败？
+## 到这里，CLI 似乎完胜
 
-## 但这个比较有一个致命前提
+Token 更省、模型更熟悉、可以 pipe、跟 Skills 搭配更好。各个维度 MCP 都被吊打。
 
-**所有基准测试都在同一个场景下跑：一个开发者，用自己的凭证，自动化自己的工作流。**
+**如果故事到这里结束，那 MCP 就是一个失败的协议，CLI 是唯一的答案。**
 
-```mermaid
-graph TB
-    subgraph "基准测试的场景"
-        Dev["你（已登录 gh）"]
-        Agent["Agent"]
-        GitHub["GitHub API"]
-        
-        Dev -->|"凭证已有"| Agent
-        Agent -->|"gh pr list"| GitHub
-        GitHub -->|"返回数据"| Agent
-    end
-    
-    subgraph "多用户场景"
-        User["用户 A / B / C..."]
-        Agent2["Agent（SaaS 产品）"]
-        Platform["第三方平台"]
-        
-        User -->|"各自的 OAuth"| Agent2
-        Agent2 -->|"scoped token"| Platform
-        Platform -->|"只返回该用户的数据"| Agent2
-    end
-    
-    style Dev fill:#6366f1,color:#fff
-    style User fill:#6366f1,color:#fff
-    style Agent fill:#a855f7,color:#fff
-    style Agent2 fill:#a855f7,color:#fff
+但这个结论有一个致命前提——**所有基准测试都在同一个场景下跑：一个开发者，用自己的凭证，自动化自己的工作流。**
+
+很多文章写到这就会说："但 MCP 有 OAuth，多租户场景不可替代！CLI 做不了认证！"
+
+**真的吗？**
+
+## 一个来自今天的亲身体验
+
+我今天用 OpenCode（CLI 形式的 AI Agent）部署了这个博客。Agent 调了 Vercel CLI：
+
+```bash
+$ vercel login
+→ 自动弹出浏览器 OAuth 页面
+→ 点一下授权
+→ CLI 自动拿到 token，本地保存
+→ 之后所有命令无感使用
 ```
 
-在左边的场景里，CLI 赢得毫无悬念。在右边——你需要多用户 OAuth、权限隔离、审计日志。
+**十秒钟。一个 CLI 工具，完整跑了 OAuth 浏览器授权流程。**
 
-很多文章写到这里就会说："所以 MCP 不可替代。"
+我又想到 `gh auth login`——GitHub CLI 也是一模一样。弹出浏览器，OAuth 授权，scoped token，本地持久化。
 
-**但这是错的。**
+所以：
 
-## `gh` 就是反例
+> **CLI 不是"架构上不支持 OAuth"。`gh` 和 `vercel` 已经证明了。**
 
-回到开头的体验。`gh auth login` 做了什么？
+如果微信愿意做一个 `wx auth login`，流程跟 `gh` 一模一样：
 
-1. 发起 OAuth 浏览器授权
-2. 用户确认，拿到 scoped token
-3. 本地持久化登录态
-4. 后续所有命令自动带 token
+```bash
+$ wx auth login
+→ 弹出微信扫码页面
+→ 手机确认授权
+→ 本地保存 token
+→ wx send abin "你好"
+→ wx moments list
+```
 
-这是一个 **CLI 工具完整实现了 OAuth 授权流程**。
+**技术上零障碍。但它永远不会出现。**
 
-`vercel login` 也是。我今天亲手体验了——Agent 调用 Vercel CLI，OAuth 在浏览器里完成，整个过程对 Agent 来说完全透明。
+不是做不到，是做了等于把苦苦经营的生态壁垒和反爬体系直接关掉。
 
-所以 CLI 不是"架构上不支持 OAuth"，而是**大多数平台根本没有提供 CLI**。GitHub 做了 `gh`，CLI 就碾压 MCP。微信没做 `wx`，你只能走 MCP 或者爬虫。
+## 那 MCP 到底有什么用？
 
-那 MCP 的价值到底是什么？
+MCP 的价值不是"做了 CLI 做不了的事"——`gh` 已经证明 CLI 能做 OAuth。
 
-## MCP 的真正价值：不是不可替代，是标准化
+MCP 的价值是**标准化**：
 
 ```mermaid
 graph TB
@@ -144,94 +167,51 @@ graph TB
         P1["GitHub: gh auth login"]
         P2["Vercel: vercel login"]
         P3["AWS: aws configure"]
-        P4["平台 N: ???"]
-        
-        P1 --> Different1["各自的 auth 流程"]
-        P2 --> Different2["各自的 token 格式"]
-        P3 --> Different3["各自的 scope 命名"]
-        P4 --> Different4["又一套新的"]
+        P4["平台 N: 又一套新的"]
     end
     
     subgraph "有 MCP 的世界"
-        MCP_std["MCP 标准协议"]
-        MCP_std --> Unified1["统一的 OAuth 发现<br/>/.well-known/oauth-authorization-server"]
-        MCP_std --> Unified2["统一的工具 schema"]
-        MCP_std --> Unified3["统一的调用方式"]
+        MCP_std["统一的 OAuth 发现协议<br/>统一的工具 schema<br/>统一的调用方式"]
     end
     
     style MCP_std fill:#6366f1,color:#fff
 ```
 
-当你只接 GitHub，`gh` 就够了。当你要接 50 个平台，每个都搞一套 CLI auth 流程就崩溃了。MCP 的价值是**"大家都用同一套协议开放"**——是标准化，不是不可替代。
+接 1 个平台，`gh` 就够了。接 50 个平台，每个都搞一套 CLI auth 就崩溃了。MCP 提供了"大家都用同一套协议开放"的可能性。
 
 **但标准化有个前提：平台愿意实现它。**
-
-## 三个方案，三个层面
-
-```mermaid
-graph TB
-    subgraph "三层问题"
-        L1["怎么调？<br/>（执行效率）"]
-        L2["怎么教 Agent 调？<br/>（知识传递）"]
-        L3["谁愿意被调？<br/>（数据开放）"]
-    end
-    
-    L1 --- CLI_sol["CLI 最优<br/>200 tokens/次<br/>LLM 天然会用"]
-    L2 --- Skills_sol["Skills 最优<br/>按需加载<br/>30 tokens 待命"]
-    L3 --- Open_sol["需要平台配合<br/>CLI 或 MCP 都行<br/>关键是平台愿不愿意做"]
-    
-    L1 --> L2 --> L3
-    
-    style L1 fill:#22c55e,color:#fff
-    style L2 fill:#eab308,color:#fff
-    style L3 fill:#ef4444,color:#fff
-    style CLI_sol fill:#22c55e20,stroke:#22c55e
-    style Skills_sol fill:#eab30820,stroke:#eab308
-    style Open_sol fill:#ef444420,stroke:#ef4444
-```
-
-第一层和第二层是技术问题，基本已经解决了。
-
-**第三层不是技术问题。** `gh` 证明了 CLI 能做 OAuth。MCP 提供了标准化方案。技术全部就绪。
-
-**缺的是水龙头，不是管道。**
 
 ## 所以整个争论都问错了问题
 
 ```mermaid
-flowchart TD
-    Wrong["社区在问的问题<br/>'CLI 还是 MCP 更好？'"]
-    Right["应该问的问题<br/>'平台愿不愿意开放数据？'"]
+graph TB
+    subgraph "社区在争的"
+        Debate["CLI vs MCP 哪个更好？"]
+    end
     
-    Wrong -->|"技术层面"| Tech["已经有答案了<br/>CLI 高效 / MCP 标准 / Skills 轻量<br/>按场景选就行"]
-    Right -->|"政治层面"| Politics["没有答案<br/>涉及平台商业模式的根基"]
+    subgraph "应该问的"
+        Real["平台愿不愿意开放数据？"]
+    end
     
-    Tech --> Solved["✅ 工程问题，正在被解决"]
-    Politics --> Unsolved["❌ 博弈问题，才刚开始"]
+    Debate --> Solved["已经有答案<br/>CLI 更高效 / MCP 更标准 / Skills 更轻量"]
+    Real --> Unsolved["没有答案<br/>微信不做 wx CLI<br/>淘宝不开放比价 API<br/>美团不给评分数据"]
     
-    style Wrong fill:#ef4444,color:#fff
-    style Right fill:#22c55e,color:#fff
+    style Debate fill:#94a3b8,color:#fff
+    style Real fill:#ef4444,color:#fff
     style Solved fill:#22c55e20,stroke:#22c55e
     style Unsolved fill:#ef444420,stroke:#ef4444
 ```
 
-我今天部署博客时 `vercel login` 的体验，跟 `gh auth login` 一样丝滑。如果 `wx auth login` 也能这样——
+GitHub 做了 `gh` → CLI 碾压一切。
+Vercel 做了 `vercel login` → 部署丝滑无比。
+微信没做 `wx` → 你只能爬虫，或者等。
 
-```bash
-$ wx auth login
-→ 弹出微信扫码
-→ 确认授权
-→ wx send abin "你好"
-```
+**决定 Agent 能力边界的，不是你选了 CLI 还是 MCP，而是平台愿不愿意给你一根管道——不管什么形式的管道。**
 
-——那 Agent 立刻就能帮你发消息、管朋友圈、处理微信支付。技术上没有任何障碍。
+CLI vs MCP 争的是管道的材质。**真正缺的是水龙头。**
 
-**但微信不会做。** 不是做不到，是做了等于把苦苦经营的生态壁垒和反爬体系直接关掉。
-
-Token 成本是工程问题，协议选择是架构问题，**数据开放是政治问题。** 前两个正在被解决，第三个才是真正卡住 Agent 生态的瓶颈。
-
-而整个社区都在用技术问题的框架，回避那个真正难的政治问题。
+Token 成本是工程问题，协议选择是架构问题，**数据开放是政治问题。** 前两个正在被解决，第三个才是真正卡住整个 Agent 生态的瓶颈。而整个社区都在用技术问题的框架，回避那个真正难的政治问题。
 
 ---
 
-*这是 "Agent 生态思考" 系列第一篇。下一篇聊聊：就算平台有 API，你也大概率用不了——Agent 落地的三层壁垒远比你想的厚。*
+*这是 "Agent 生态思考" 系列第一篇。下一篇聊：就算平台有 API，你也大概率用不了——Agent 落地的三层壁垒比你想的厚得多。*
