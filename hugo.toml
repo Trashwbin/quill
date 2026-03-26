@@ -15,7 +15,7 @@ buildExpired = false
 [params]
   env = "production"
   description = "Trashwbin's personal blog"
-  author = "trashwbin"
+  author = "Abin"
   defaultTheme = "auto"  # auto / dark / light
   ShowReadingTime = true
   ShowShareButtons = false
