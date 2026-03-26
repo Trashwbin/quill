@@ -2,16 +2,89 @@
 title: "CLI vs MCP vs Skills：整个争论都问错了问题"
 date: 2026-03-26
 draft: false
-tags: ["AI Agent", "MCP", "CLI", "Skills", "架构"]
-summary: "2026 年 Agent 工具链之争的核心不是谁更省 token，而是数据的主人愿不愿意打开水龙头。gh auth login 证明 CLI 完全能做 OAuth——问题是微信不会做 wx auth login。"
+tags: ["AI Agent", "MCP", "CLI", "Skills", "OAuth"]
+summary: "2026 年 AI Agent 社区最热的架构之争。CLI 派说 MCP 浪费 token，MCP 派说标准化才是未来，Skills 派说一个 Markdown 就够了。但做过 MCP Server 之后，我发现整个争论都在回避真正的问题。"
 mermaid: true
 ---
 
-> 2026 年初，AI Agent 社区最热的架构之争不是该用哪个框架，而是 Agent 该怎么调用外部工具。CLI 派说 Bash 就够了，MCP 派说标准协议才是未来，Skills 派说一个 Markdown 文件解决一切。三方各有数据支撑，各有信徒。但我认为，这场争论从根本上就问错了问题。
+## 他们在吵什么
 
-## 争论的表面：谁更省 Token
+2026 年 3 月，AI Agent 圈最热的话题不是哪个模型更强，而是一个听起来很无聊的架构问题：
 
-先看大家在吵什么。ScaleKit 做了 75 次基准测试，同一个 GitHub 任务，三种方案的 token 消耗：
+> Agent 该用什么方式调用外部工具？
+
+三个阵营打得不可开交：
+
+**MCP 派**（Model Context Protocol）：Anthropic 2024 年底推出的开放标准[^1]。通过 JSON-RPC 协议统一封装各类服务接口，Agent 一次接入就能跨平台调用多种工具。OpenAI、Google、Microsoft、AWS 全部跟进[^2]。听起来很美好。
+
+**CLI 派**：直接让 Agent 跑 shell 命令——`git log`、`gh pr list`、`curl`、`kubectl`。不需要任何协议层，不需要额外服务器。50 年前的 `grep` 和 `awk` 在 AI 时代焕发第二春。
+
+**Skills 派**：一个 Markdown 文件当"小抄"，教 Agent 在什么场景用什么工具。30 token 待命，触发时才加载完整指令。Flask 作者 Armin Ronacher 全面转向这个方案[^3]。
+
+## 最新战况（吃瓜指南）
+
+MCP 正在被"退货"：
+
+- Perplexity 发博客宣布准备全面抛弃 MCP 转向 CLI[^4]
+- 开发者吐槽："MCP 就像给自行车装火箭推进器，太重了"
+- Eric Holmes 的 "MCP is dead. Long live the CLI" 登上 Hacker News 热榜[^5]
+- **连 MCP 的"亲爹" Anthropic，自家的 Claude Code 也更像 CLI 而非 MCP**
+
+CLI 的"文艺复兴"：
+
+- Andrej Karpathy 2026 年 2 月在 X 上说 CLI "super exciting precisely because they are legacy"[^6]
+- GitHub 上最火的项目从"MCP 工具"变成"AI 命令行助手"
+- Google 专门开源了给 AI 用的命令行工具[^7]
+
+Skills 的悄然崛起：
+
+- Simon Willison（Python 社区知名开发者）在 Claude Skills 发布时称其 "maybe a bigger deal than MCP"[^11]
+- Armin Ronacher 全面从 MCP 转向 Skills，并给出了核心理由[^3]：
+
+> "Skills 本质上只是一份简短的摘要，告诉 Agent 有哪些能力、去哪个文件了解更多。关键是——Skills 不会往上下文里塞任何工具定义。工具还是原来的工具：bash 和 Agent 已有的那些。"
+
+- 社区开始出现"删掉所有 MCP，用 Skills + CLI 替代"的实践文章[^8]
+
+## CLI 赢在哪？技术层面拆解
+
+### 1. MCP 的上下文污染
+
+MCP 最大的问题：**Agent 一启动就要把所有工具的 schema 塞进上下文。**
+
+GitHub 的 Copilot MCP Server 暴露 43 个工具，连接它就往上下文注入约 55,000 token 的工具定义[^8]。还没开始干活，token 预算花掉一大半。接 10 个 MCP Server、100 个工具？上下文直接爆炸。
+
+CLI 完全不同——**渐进式发现**。Agent 先跑 `gh --help` 看有什么命令，需要时再 `gh pr --help` 看子命令参数。信息按需加载，不是开局全塞。
+
+### 2. LLM 天然会用 CLI
+
+LLM 训练数据里有几十年的 Unix 文档、Stack Overflow 回答、GitHub 上的 shell 脚本。模型天生认识 `git`、`curl`、`grep`、`docker`。
+
+MCP 呢？大量的 JSON schema，模型更难处理，还要输出格式化的 JSON token。你自定义的 MCP 工具，模型从训练数据里学不到怎么调。
+
+### 3. 管道操作
+
+MCP 工具返回结果如果需要后处理（过滤、搜索、截取），得写额外代码。CLI 直接 pipe：
+
+```bash
+gh pr list --json number,title | jq '.[] | select(.title | contains("fix"))'
+```
+
+Agent 输出几个命令用 `|` 连起来，后处理就搞定了。更简单、更灵活、维护成本更低。
+
+### 4. CLI + Skills 天然搭配
+
+Skill 文件里教 Agent 用 CLI，干净利落：
+
+```markdown
+## 查看 PR 状态
+gh pr list --state open --json number,title,author
+```
+
+换成 MCP？Skill 文件会充斥 function call、JSON schema，整个文档混乱不堪。
+
+### 数据说话
+
+ScaleKit 75 次基准测试[^9]，同一个 GitHub 任务（Claude Sonnet 4，同一 prompt）：
 
 ```mermaid
 graph LR
@@ -30,193 +103,159 @@ graph LR
     style MCP fill:#ef4444,color:#fff
 ```
 
-换算成钱（Claude Sonnet 4 定价，每月 1 万次调用）：
-
-| 方案 | 月成本 | 可靠性 |
-|------|--------|--------|
+| 方案 | 月成本（1 万次） | 可靠性 |
+|------|-----------------|--------|
 | CLI | ~$3.20 | 100% |
 | CLI + Skills | ~$4.50 | 100% |
 | MCP | ~$55.20 | 72%（28% 超时） |
 
-数据很震撼。CLI 阵营的结论是：MCP 就是浪费钱。
+CLI 便宜 17 倍，可靠性 100% vs 72%。成本按 Claude Sonnet 4 定价（$3/M input，$15/M output）计算[^10]。碾压。
 
-Andrej Karpathy 2026 年 2 月在 X 上说 CLI 是 "super exciting precisely because they are legacy"。某个 19 万 star 的 Agent 框架作者直接说 "MCP was a mistake"。Flask 的作者 Armin Ronacher 全面转向 Skills。
+## 到这里，CLI 似乎完胜
 
-看起来 MCP 完败？
+Token 更省、模型更熟悉、可以 pipe、跟 Skills 搭配更好。各个维度 MCP 都被吊打。
 
-## 但这个比较有一个致命前提
+### 公允地说：MCP 在自我修正
 
-**所有基准测试都在同一个场景下跑：一个开发者，自动化自己的工作流。**
+MCP 没有坐以待毙。2026 年 1 月，Anthropic 推出了 **progressive discovery**[^12]——本质上借鉴了 Skills 的按需加载思路：
+
+- 初始只加载工具名 + 短描述（20-50 token/工具）
+- 完整 schema 仅在 Agent 决定使用该工具时才加载
+
+效果：
+- Token 开销降低 85%（77,000 → 8,700 token，50+ 工具场景）
+- 工具调用准确率提升：Claude Opus 4 从 49% 升到 74%
+
+差距在缩小。但 Skills 在纯效率上仍然胜出——因为它根本不注入 schema，只注入知识。
+
+**不过，即使 MCP 的效率问题被完全解决，还有一个更根本的问题没人提：**
+
+所有基准测试都在同一个场景下跑——**一个开发者，用自己的凭证，自动化自己的工作流。**
+
+很多文章写到这就会说："但 MCP 有 OAuth，多租户场景不可替代！CLI 做不了认证！"
+
+**真的吗？**
+
+## 一个来自今天的亲身体验
+
+我今天用 OpenCode（CLI 形式的 AI Agent）部署了这个博客。Agent 调了 Vercel CLI：
+
+```bash
+$ vercel login
+→ 自动弹出浏览器 OAuth 页面
+→ 点一下授权
+→ CLI 自动拿到 token，本地保存
+→ 之后所有命令无感使用
+```
+
+**十秒钟。一个 CLI 工具，完整跑了 OAuth 浏览器授权流程。**
+
+我又想到 `gh auth login`——GitHub CLI 也是一模一样。弹出浏览器，OAuth 授权，scoped token，本地持久化。
+
+所以：
+
+> **CLI 不是"架构上不支持 OAuth"。`gh` 和 `vercel` 已经证明了。**
+
+如果微信愿意做一个 `wx auth login`，流程跟 `gh` 一模一样：
+
+```bash
+$ wx auth login
+→ 弹出微信扫码页面
+→ 手机确认授权
+→ 本地保存 token
+→ wx send abin "你好"
+→ wx moments list
+```
+
+**技术上零障碍。但它永远不会出现。**
+
+不是做不到，是做了等于把苦苦经营的生态壁垒和反爬体系直接关掉。
+
+## 那 MCP 到底有什么用？
+
+MCP 的价值不是"做了 CLI 做不了的事"——`gh` 已经证明 CLI 能做 OAuth。
+
+MCP 的价值是**标准化**：
 
 ```mermaid
 graph TB
-    subgraph "基准测试的场景"
-        Dev["开发者（你）"]
-        Agent["Agent"]
-        GitHub["GitHub API"]
-        
-        Dev -->|"已登录 gh"| Agent
-        Agent -->|"gh pr list"| GitHub
-        GitHub -->|"返回数据"| Agent
+    subgraph "没有 MCP 的世界"
+        P1["GitHub: gh auth login"]
+        P2["Vercel: vercel login"]
+        P3["AWS: aws configure"]
+        P4["平台 N: 又一套新的"]
     end
     
-    subgraph "现实世界的场景"
-        User["用户 A / B / C..."]
-        Agent2["Agent（SaaS 产品）"]
-        Platform["第三方平台"]
-        
-        User -->|"各自的 OAuth"| Agent2
-        Agent2 -->|"带 scoped token"| Platform
-        Platform -->|"只返回该用户的数据"| Agent2
+    subgraph "有 MCP 的世界"
+        MCP_std["统一的 OAuth 发现协议<br/>统一的工具 schema<br/>统一的调用方式"]
     end
     
-    style Dev fill:#6366f1,color:#fff
-    style User fill:#6366f1,color:#fff
-    style Agent fill:#a855f7,color:#fff
-    style Agent2 fill:#a855f7,color:#fff
+    style MCP_std fill:#6366f1,color:#fff
 ```
 
-在左边的场景里，CLI 赢是必然的——你已经有 `gh auth login` 的凭证，Agent 直接用你的身份调命令，简单、高效、零额外开销。
+接 1 个平台，`gh` 就够了。接 50 个平台，每个都搞一套 CLI auth 就崩溃了。MCP 提供了"大家都用同一套协议开放"的可能性。
 
-**但右边的场景呢？**
+**但标准化有个前提：平台愿意实现它。**
 
-当你做的不是给自己用的工具，而是一个服务多个用户的 SaaS 产品时，你需要：
-
-- 每个用户独立的 OAuth 授权
-- Scoped permission（用户 A 不能看用户 B 的数据）
-- 审计日志（谁在什么时间访问了什么）
-- Token 刷新和吊销
-
-等等，CLI 真的做不了这些吗？
-
-**`gh` 就是反例。** `gh auth login` 完整实现了 OAuth 浏览器授权流程，拿到 scoped token，本地持久化登录态。如果微信愿意做一个 `wx auth login`，技术上跟 `gh` 一模一样——弹出授权页，用户扫码确认，本地保存 token，之后 `wx send`、`wx moments` 全部可用。
-
-**所以 CLI 不是"架构上不支持" OAuth，而是大多数平台根本没有提供 CLI。** GitHub 做了 `gh`，所以 CLI 在 GitHub 生态里碾压 MCP。微信没做 `wx`，所以你只能走 MCP 或者爬虫。
-
-那 MCP 的价值是什么？**不是不可替代，是更标准化。** 它定义了一套统一的 OAuth 发现机制（`/.well-known/oauth-authorization-server`）和工具 schema 格式。当你需要接入 50 个不同的平台时，每个平台自己搞一套 CLI auth 流程的成本太高——MCP 提供了一个"大家都用同一套协议"的可能性。
-
-**但标准化的前提是：平台愿意实现它。** 协议再好，水龙头不开，管道也是空的。
-
-## 三个方案解决的是不同层面的问题
+## 所以整个争论都问错了问题
 
 ```mermaid
 graph TB
-    subgraph "三层问题"
-        L1["怎么调工具？<br/>（执行效率）"]
-        L2["怎么教 Agent 用工具？<br/>（知识传递）"]
-        L3["凭什么让你调？<br/>（授权与治理）"]
+    subgraph "社区在争的"
+        Debate["CLI vs MCP 哪个更好？"]
     end
     
-    L1 --- CLI_sol["CLI 最优<br/>LLM 训练数据里就有<br/>200 tokens/次"]
-    L2 --- Skills_sol["Skills 最优<br/>按需加载领域知识<br/>30-50 tokens 待命"]
-    L3 --- MCP_sol["MCP 更标准<br/>统一的 OAuth + Schema 协议<br/>但 CLI 也能做（gh 就是先例）"]
-    
-    L1 --> L2 --> L3
-    
-    style L1 fill:#22c55e,color:#fff
-    style L2 fill:#eab308,color:#fff
-    style L3 fill:#ef4444,color:#fff
-    style CLI_sol fill:#22c55e20,stroke:#22c55e
-    style Skills_sol fill:#eab30820,stroke:#eab308
-    style MCP_sol fill:#ef444420,stroke:#ef4444
-```
-
-注意第三层：很多人说"授权治理只有 MCP 能做"，这是错的。`gh auth login` 证明了 CLI 完全可以跑 OAuth。MCP 的真正价值不是"能做什么 CLI 做不了的事"，而是"提供了一套标准让所有平台用同一种方式开放"。
-
-但标准只是管道。真正决定 Agent 能力边界的，是有多少平台愿意接上这根管道——不管它是 CLI 形式还是 MCP 形式。
-
-## "谁更高效"是错误的问题。正确的问题是——
-
-### 你的 Agent 在为谁服务？
-
-```mermaid
-flowchart TD
-    Start["你的 Agent 为谁服务？"]
-    
-    Start -->|"为我自己"| Self["单用户场景"]
-    Start -->|"为我的团队"| Team["小团队场景"]  
-    Start -->|"为别人的用户"| Multi["多租户场景"]
-    
-    Self --> CLI_win["CLI + Skills<br/>✅ 最优解"]
-    Team --> Hybrid["Skills + 可能需要 MCP<br/>⚠️ 看 IT 是否给 API 权限"]
-    Multi --> MCP_win["MCP 更标准化<br/>✅ 统一的 OAuth / Schema 协议"]
-    
-    CLI_win --> Note1["Agent 继承你的凭证<br/>直接执行，token 极省"]
-    Hybrid --> Note2["非技术用户需要 Skills<br/>企业合规可能需要 MCP"]
-    MCP_win --> Note3["CLI 也能做 OAuth（gh 就是先例）<br/>但 50 个平台各搞一套成本太高<br/>MCP 的价值是标准化"]
-    
-    style Start fill:#6366f1,color:#fff
-    style CLI_win fill:#22c55e,color:#fff
-    style Hybrid fill:#eab308,color:#fff
-    style MCP_win fill:#ef4444,color:#fff
-```
-
-### 模型认不认识这个工具？
-
-```mermaid
-flowchart TD
-    Q["LLM 的训练数据里<br/>有没有这个工具？"]
-    
-    Q -->|"有（git, curl, kubectl...）"| Known["直接 CLI 调用<br/>零 schema 开销"]
-    Q -->|"没有（你自建的 API）"| Unknown["需要 schema 告诉它怎么用"]
-    
-    Unknown --> MCP_here["MCP 的结构化 schema<br/>减少幻觉，提高准确率"]
-    
-    Known --> NoMCP["包一层 MCP = 纯开销<br/>❌ 不要这么做"]
-    
-    style Q fill:#6366f1,color:#fff
-    style Known fill:#22c55e,color:#fff
-    style Unknown fill:#f97316,color:#fff
-```
-
-## 聪明的架构：三层混合
-
-争论谁赢没有意义。真正的工程决策是 **per-tool 选择**，不是 per-system 选择。
-
-```mermaid
-graph TB
-    subgraph "Skills 层（指令）"
-        S["Skill 文件<br/>30-50 tokens 待命<br/>教 Agent 领域知识和工作流"]
+    subgraph "应该问的"
+        Real["平台愿不愿意开放数据？"]
     end
     
-    subgraph "执行层（按工具选择）"
-        CLI_exec["CLI 执行<br/>git / gh / aws / kubectl<br/>模型已知的工具"]
-        MCP_exec["MCP 执行<br/>自建 API / SaaS 集成<br/>需要 OAuth 的服务"]
-    end
+    Debate --> Solved["已经有答案<br/>CLI 更高效 / MCP 更标准 / Skills 更轻量"]
+    Real --> Unsolved["没有答案<br/>微信不做 wx CLI<br/>淘宝不开放比价 API<br/>美团不给评分数据"]
     
-    S --> CLI_exec
-    S --> MCP_exec
-    
-    CLI_exec --> Local["本地执行<br/>快 / 便宜 / 可组合"]
-    MCP_exec --> Remote["远程服务<br/>安全 / 可审计 / 多租户"]
-    
-    style S fill:#a855f7,color:#fff
-    style CLI_exec fill:#22c55e,color:#fff
-    style MCP_exec fill:#ef4444,color:#fff
+    style Debate fill:#94a3b8,color:#fff
+    style Real fill:#ef4444,color:#fff
+    style Solved fill:#22c55e20,stroke:#22c55e
+    style Unsolved fill:#ef444420,stroke:#ef4444
 ```
 
-Claude Code 现在用的就是这个架构——Skills 作为指令层，CLI 和 MCP 作为可互换的执行层。Agent 不关心底层是什么协议，它只调用 Skill。
+GitHub 做了 `gh` → CLI 碾压一切。
+Vercel 做了 `vercel login` → 部署丝滑无比。
+微信没做 `wx` → 你只能爬虫，或者等。
 
-## 结论：争论的是管道，缺的是水龙头
+**决定 Agent 能力边界的，不是你选了 CLI 还是 MCP，而是平台愿不愿意给你一根管道——不管什么形式的管道。**
 
-CLI vs MCP vs Skills 不是一场需要分出胜负的战争。它们是三个不同层面问题的解决方案：
+CLI vs MCP 争的是管道的材质。**真正缺的是水龙头。**
 
-- **CLI** 解决执行效率（怎么调）
-- **Skills** 解决知识传递（怎么教）
-- **MCP** 解决标准化（让所有平台用同一种方式开放）
-
-注意，我说的是"标准化"，不是"授权治理"——因为 CLI 本身完全可以做 OAuth。`gh auth login` 就是最好的证明。如果微信愿意做一个 `wx auth login`，技术上毫无障碍，流程跟 `gh` 一模一样：弹出授权页 → 扫码确认 → 本地保存 token → 后续命令直接用。
-
-**但微信不会做。** 不是技术做不到，是做了会把苦苦经营的生态壁垒和反爬体系直接关掉。
-
-所以当你在比较 CLI 和 MCP 的 token 消耗时，你已经在问错误的问题了。正确的问题是：
-
-> **你的 Agent 需要访问谁的数据？数据的主人愿不愿意让它访问？**
-
-这不是 CLI 还是 MCP 能回答的问题。这是一个数据主权问题，一个商业模式问题，一个平台博弈问题。
-
-Token 成本是工程问题，协议选择是架构问题，**数据开放是政治问题。** 前两个正在被解决，第三个才是真正卡住 Agent 生态的瓶颈。而整个社区都在用技术问题的框架，回避那个真正难的政治问题。
+Token 成本是工程问题，协议选择是架构问题，**数据开放是政治问题。** 前两个正在被解决，第三个才是真正卡住整个 Agent 生态的瓶颈。而整个社区都在用技术问题的框架，回避那个真正难的政治问题。
 
 ---
 
-*这是 "Agent 生态思考" 系列的第一篇。下一篇聊聊为什么 Agent 的真正瓶颈不是 AI 能力，而是数据主权。*
+*这是 "Agent 生态思考" 系列第一篇。下一篇聊：就算平台有 API，你也大概率用不了——Agent 落地的三层壁垒比你想的厚得多。*
+
+---
+
+## 参考资料
+
+[^1]: Anthropic, ["Introducing the Model Context Protocol"](https://www.anthropic.com/news/model-context-protocol), Nov 2024. MCP 于 2024 年 11 月发布，2025 年 12 月捐赠给 Linux Foundation 的 Agentic AI Foundation (AAIF)。
+
+[^2]: OpenAI 于 2025 年 3 月、Google DeepMind 于 2025 年 4 月、Microsoft Copilot Studio 及 AWS 于 2025 年 7 月先后宣布支持 MCP。参见 [CLI-Based Agents vs MCP: The 2026 Showdown](https://lalatenduswain.medium.com/cli-based-agents-vs-mcp-the-2026-showdown-that-every-ai-engineer-needs-to-understand-7dfbc9e3e1f9)。
+
+[^3]: Armin Ronacher (Flask creator), "Skills vs Dynamic MCP Loadouts"，解释了他为什么从 MCP 全面转向 Skills。参见 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/) 中的引用。
+
+[^4]: Perplexity 关于抛弃 MCP 转向 CLI 的博文。
+
+[^5]: Eric Holmes, "MCP is dead. Long live the CLI"，登上 Hacker News 热榜。参见 [MCP Token Cost Problem](https://www.buildmvpfast.com/blog/mcp-hidden-cost-cli-agent-infrastructure-2026)。
+
+[^6]: Andrej Karpathy 于 2026 年 2 月在 X (Twitter) 上发言，称 CLI 对 Agent 工作流 "super exciting precisely because they are a legacy"。参见 [Why CLIs Beat MCP for AI Agents](https://lalatenduswain.medium.com/why-clis-beat-mcp-for-ai-agents-and-how-to-build-your-own-cli-army-8db9e0467dd8)。
+
+[^7]: Google 开源的 AI CLI 工具：[gws](https://github.com/nicholasgasior/gws)（Google Workspace CLI）等项目。
+
+[^8]: Agent Native, ["Delete your MCPs: Skills + CLI outperform at ~20x lower cost"](https://agentnativedev.medium.com/i-deleted-all-my-mcps-skills-cli-outperform-at-20x-lower-cost-8e86e05fcca6), Mar 2026. 文中指出 GitHub Copilot MCP Server 暴露 43 个工具，初始化注入约 55,000 token。
+
+[^9]: ScaleKit, ["MCP vs CLI: Benchmarking AI Agent Cost & Reliability"](https://www.scalekit.com/blog/mcp-vs-cli-use), Mar 2026. 75 次基准测试的完整数据和方法论。基准测试代码开源于 [GitHub](https://github.com/scalekit-inc/mcp-vs-cli-benchmark)。
+
+[^10]: Anthropic Claude 定价页：Claude Sonnet 4 — $3/M input tokens, $15/M output tokens。月成本估算基于 ScaleKit 基准测试的 median token 数据。
+
+[^11]: Simon Willison, ["Claude's Skills"](https://simonwillison.net/2025/Oct/16/claude-skills/), Oct 2025. 在 Claude Skills 发布时称其 "maybe a bigger deal than MCP"。
+
+[^12]: Anthropic MCP progressive discovery，参见 ["MCP Tool Search: Claude Code Context Pollution Guide"](https://www.atcyrus.com/stories/mcp-tool-search-claude-code-context-pollution-guide)。Token 开销降低 85%，准确率提升数据来自 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/)。
