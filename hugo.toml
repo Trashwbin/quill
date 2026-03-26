@@ -72,15 +72,11 @@ buildExpired = false
     languageName = '中文'
     languageCode = 'zh-CN'
     weight = 1
-    title = 'Quill'
+    title = "Abin's Quill"
     contentDir = 'content/zh'
 
     [languages.zh.params]
       description = "Abin 的个人博客"
-
-      [languages.zh.params.homeInfoParams]
-        Title = "Hey 👋"
-        Content = "我是 Abin，这里记录我对技术和产品的思考。"
 
     [[languages.zh.menu.main]]
       identifier = "posts"
@@ -110,15 +106,11 @@ buildExpired = false
     languageName = 'EN'
     languageCode = 'en-US'
     weight = 2
-    title = 'Quill'
+    title = "Abin's Quill"
     contentDir = 'content/en'
 
     [languages.en.params]
       description = "Abin's personal blog"
-
-      [languages.en.params.homeInfoParams]
-        Title = "Hey 👋"
-        Content = "I'm Abin. I write about tech and product thinking."
 
     [[languages.en.menu.main]]
       identifier = "posts"
