@@ -243,13 +243,13 @@ Token 成本是工程问题，协议选择是架构问题，**数据开放是政
 
 [^3]: Armin Ronacher (Flask creator), "Skills vs Dynamic MCP Loadouts"，解释了他为什么从 MCP 全面转向 Skills。参见 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/) 中的引用。
 
-[^4]: Perplexity 关于抛弃 MCP 转向 CLI 的博文。
+[^4]: Perplexity CTO Denis Yarats 在 Ask 2026 开发者大会（2026 年 3 月 11 日）上宣布内部弃用 MCP，转向 REST API 和 CLI。参见 [Awesome Agents 报道](https://awesomeagents.ai/news/perplexity-agent-api-mcp-shift/)、[Agent Engineering 深度分析](https://www.agent-engineering.dev/article/why-perplexity-is-stepping-back-from-the-model-context-protocol-mcp-internally)。
 
-[^5]: Eric Holmes, "MCP is dead. Long live the CLI"，登上 Hacker News 热榜。参见 [MCP Token Cost Problem](https://www.buildmvpfast.com/blog/mcp-hidden-cost-cli-agent-infrastructure-2026)。
+[^5]: Eric Holmes, ["MCP is dead. Long live the CLI"](https://ejholmes.github.io/2026/02/28/mcp-is-dead-long-live-the-cli.html), Feb 28, 2026. 登上 Hacker News 热榜，400+ 点赞，近 300 条评论。
 
 [^6]: Andrej Karpathy 于 2026 年 2 月在 X (Twitter) 上发言，称 CLI 对 Agent 工作流 "super exciting precisely because they are a legacy"。参见 [Why CLIs Beat MCP for AI Agents](https://lalatenduswain.medium.com/why-clis-beat-mcp-for-ai-agents-and-how-to-build-your-own-cli-army-8db9e0467dd8)。
 
-[^7]: Google 开源的 AI CLI 工具：[gws](https://github.com/nicholasgasior/gws)（Google Workspace CLI）等项目。
+[^7]: Google 开源的 AI CLI 工具：[gws](https://github.com/googleworkspace/cli)（Google Workspace CLI，21.8k star，100+ Agent Skills）和 [Gemini CLI](https://github.com/google-gemini/gemini-cli)（Apache-2.0）。
 
 [^8]: Agent Native, ["Delete your MCPs: Skills + CLI outperform at ~20x lower cost"](https://agentnativedev.medium.com/i-deleted-all-my-mcps-skills-cli-outperform-at-20x-lower-cost-8e86e05fcca6), Mar 2026. 文中指出 GitHub Copilot MCP Server 暴露 43 个工具，初始化注入约 55,000 token。
 
