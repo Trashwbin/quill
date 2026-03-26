@@ -7,7 +7,9 @@
     mermaid.initialize({
       startOnLoad: true,
       theme: isDark ? "dark" : "default",
-      securityLevel: "loose"
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true },
+      graph: { useMaxWidth: true }
     });
   })();
 </script>
