@@ -123,7 +123,15 @@ graph TB
 
 OpenCLI 之类的项目也一样——逆向别人的 API，封装成 CLI。能用，但平台一更新接口你就废了。而且法律风险始终在头上悬着。
 
-这些产品确实在推动一件对的事，但用的是注定不可持续的方式。
+而且"翻墙"不只是脆弱——**还危险**。OpenClaw 的安全事件[^1]就是警示：
+
+- **10,000+ 实例**因配置不当泄露了用户凭证
+- 社区 Skills 中有 **12% 被发现是恶意的**——注入代码、窃取数据、建立持久化后门
+- **770,000 个 Agent** 被发现存在远程劫持风险
+
+这些不是代码 bug，而是**架构层面的必然结果**——当你给 Agent shell 访问权限却没有授权边界时，安全事故是迟早的事。这也是为什么 MCP 的 OAuth + 权限隔离在企业场景中仍然有存在价值。
+
+这些产品确实在推动一件对的事，但用的是注定不可持续的方式——不只是技术上不可持续，安全上也不可持续。
 
 ## 类比：视频网站的演进
 
@@ -250,3 +258,9 @@ graph TB
 ---
 
 *这是 "Agent 生态思考" 系列第三篇。这个系列的核心观点只有一句话：**CLI vs MCP 争的是管道，缺的是水龙头。** 技术全部就绪，等的是数据持有者的选择。*
+
+---
+
+## 参考资料
+
+[^1]: OpenClaw 安全事件数据来自 ScaleKit, ["MCP vs CLI: Benchmarking AI Agent Cost & Reliability"](https://www.scalekit.com/blog/mcp-vs-cli-use), Mar 2026。另见 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/) 中的引用。
