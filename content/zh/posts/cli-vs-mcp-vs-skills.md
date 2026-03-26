@@ -1,7 +1,8 @@
 ---
 title: "CLI vs MCP vs Skills：整个争论都问错了问题"
-date: 2026-03-26
+date: 2026-03-26T10:00:00+08:00
 draft: false
+series: ["Agent 生态思考"]
 tags: ["AI Agent", "MCP", "CLI", "Skills", "OAuth"]
 summary: "2026 年 AI Agent 社区最热的架构之争。CLI 派说 MCP 浪费 token，MCP 派说标准化才是未来，Skills 派说一个 Markdown 就够了。但做过 MCP Server 之后，我发现整个争论都在回避真正的问题。"
 mermaid: true
@@ -230,7 +231,7 @@ Token 成本是工程问题，协议选择是架构问题，**数据开放是政
 
 ---
 
-*这是 "Agent 生态思考" 系列第一篇。下一篇聊：就算平台有 API，你也大概率用不了——Agent 落地的三层壁垒比你想的厚得多。*
+*这是 "Agent 生态思考" 系列第一篇。下一篇聊：就算平台有 API，你也大概率用不了——Agent 落地的两层壁垒比你想的厚得多。*
 
 ---
 

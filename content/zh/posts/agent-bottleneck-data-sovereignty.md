@@ -1,7 +1,8 @@
 ---
 title: "Agent 帮不了你，不是因为它不够聪明"
-date: 2026-03-26T12:00:00+08:00
+date: 2026-03-26T14:00:00+08:00
 draft: false
+series: ["Agent 生态思考"]
 tags: ["AI Agent", "数据壁垒", "权限", "企业IT"]
 summary: "LLM 够强了，CLI 够高效了，MCP 够标准了。但你让 Agent 帮你写个周报试试？它连你的飞书文档都读不到。问题出在两层壁垒上。"
 mermaid: true

@@ -6,6 +6,10 @@ paginate = 10
 defaultContentLanguage = 'zh'
 defaultContentLanguageInSubdir = false
 
+[taxonomies]
+  tag = "tags"
+  series = "series"
+
 enableRobotsTXT = true
 buildDrafts = false
 buildFuture = false
