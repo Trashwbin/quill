@@ -7,155 +7,28 @@ summary: "LLM 够强了，CLI 够高效了，MCP 够标准了。但你让 Agent 
 mermaid: true
 ---
 
-> 上一篇我们聊了 CLI vs MCP 的争论其实问错了问题。这篇往下挖一层：就算协议问题全解决了，Agent 在现实中依然寸步难行。原因比你想的更结构化。
+> [上一篇](/posts/cli-vs-mcp-vs-skills/)我们分析了 CLI vs MCP 的争论本质上是在讨论"管道"，而真正缺的是"水龙头"。这篇继续往下挖：就算水龙头开了，你也大概率接不上。Agent 在现实中寸步难行的原因，比大多数人想的更结构化。
 
-## 一个很美好的想象
+## 一个常见的许诺
 
-有人跟你说："让 Agent 帮你自动写周报。它去翻你的 Git commit、飞书文档编辑记录、Jira 状态变更、日历会议，生成一份你老板能看的周报。"
+"让 Agent 帮你自动写周报——它去翻你的 Git commit、飞书文档编辑记录、Jira 状态变更、日历会议，生成一份你老板能看的周报。"
 
-听起来很棒。
+这是 Agent 产品最爱讲的故事。听起来很合理——数据都是你自己的，工具也都在用，只是把手动汇总的过程自动化了而已。
 
-但你真的试过吗？
-
-## Agent 的能力公式
-
-```mermaid
-graph LR
-    A["LLM 推理<br/>10/10 ✅"] 
-    B["工具调用<br/>8/10 ✅"]
-    C["可访问的数据<br/>2/10 ❌"]
-    
-    A --- Times1["×"]
-    Times1 --- B
-    B --- Times2["×"]
-    Times2 --- C
-    C --- Result["= Agent 实际能力<br/>严重受限"]
-    
-    style A fill:#22c55e,color:#fff
-    style B fill:#22c55e,color:#fff
-    style C fill:#ef4444,color:#fff
-    style Result fill:#f97316,color:#fff
-```
-
-LLM 推理能力？2026 年了，够用了。工具调用？CLI + Skills + MCP，上一篇聊过，基本解决了。
-
-**短板在第三项：可访问的数据。** 这就像你有一辆法拉利和一条完美的赛道，但油箱是空的。
-
-## 三层壁垒
-
-数据拿不到不是一个笼统的问题，它有三层，每层的原因和性质完全不同：
+但如果你真的动手试一下，会发现 5 个数据源里只有 1 个能用：
 
 ```mermaid
 graph TB
-    subgraph "第一层：平台不开放"
-        W1["微信、淘宝、美团、抖音<br/>根本没有 API<br/>不是技术做不到，是商业模式决定不做"]
-    end
+    Agent["Agent：帮你写周报"]
     
-    subgraph "第二层：平台开放了，但组织不让用"
-        W2["飞书、Jira、Google Workspace<br/>有 API，但企业 IT 不批准<br/>安全策略禁止个人创建集成"]
-    end
+    Agent --> Git["Git log ✅<br/>SSH key 在本机，直接可用"]
+    Agent --> Feishu["飞书文档 ❌<br/>需要创建企业应用 → 管理员审批"]
+    Agent --> Jira_t["Jira 工单 ❌<br/>IT 部门禁用了 Personal Access Token"]
+    Agent --> Cal["日历 ❌<br/>飞书日历 API 同样需要企业应用审批"]
+    Agent --> Email["邮箱 ❌<br/>企业邮箱的 IMAP 被安全策略禁用"]
     
-    subgraph "第三层：API 也有了，数据串不起来"
-        W3["Git 在 GitLab，文档在飞书<br/>工单在 Jira，邮件在 Outlook<br/>10 个系统各自为政，没有统一数据模型"]
-    end
-    
-    W1 --> W2 --> W3
-    
-    Agent["你的 Agent"]
-    Agent -.->|"被挡在"| W1
-    Agent -.->|"被挡在"| W2
-    Agent -.->|"被挡在"| W3
-    
-    style W1 fill:#ef4444,color:#fff
-    style W2 fill:#f97316,color:#fff
-    style W3 fill:#eab308,color:#fff
-    style Agent fill:#6366f1,color:#fff
-```
-
-大部分人只看到第一层。**第二层是最被低估的。**
-
-## 第一层：平台不开放
-
-上一篇详细聊过。微信不会做 `wx auth login`，淘宝不会让你的 Agent 比价，抖音不会开放推荐数据。因为它们的商业模式建立在数据围墙上——开放数据等于自杀。
-
-这一层被讨论得最多，这里不再展开。
-
-## 第二层：可视化权限 ≠ API 权限
-
-**这才是大多数人掉进去的坑。**
-
-当有人说"你对这个数据有权限"，实际可能指三件完全不同的事：
-
-```mermaid
-graph TB
-    L1["第一层：可视化权限<br/>我能在浏览器/App 里看到"] -->|"✅ 你有"| OK1["每天都在用"]
-    L2["第二层：API 权限<br/>我能通过程序提取"] -->|"❓ 不一定"| Maybe["需要 Token / Credential"]
-    L3["第三层：组织授权<br/>公司 IT 允许我调 API"] -->|"❌ 大概率没有"| Nope["安全策略阻止"]
-    
-    style L1 fill:#22c55e,color:#fff
-    style L2 fill:#eab308,color:#fff
-    style L3 fill:#ef4444,color:#fff
-```
-
-你每天打开飞书看文档、在 Jira 看工单、在邮箱收邮件——这些都是**可视化权限**。浏览器里有登录态，Cookie 自动带上，一切无感。
-
-但 Agent 走的是另一条路：
-
-```mermaid
-graph TB
-    subgraph "浏览器访问（你每天在用的）"
-        Browser["浏览器"]
-        Browser --> Cookie["Cookie / Session<br/>自动携带"]
-        Cookie --> Server["服务器返回数据"]
-    end
-    
-    subgraph "Agent / API 访问（需要的）"
-        Agent["Agent / 脚本"]
-        Agent -->|"需要"| Token["API Token"]
-        Token -->|"需要"| IT["IT 部门审批"]
-        IT -->|"需要"| Policy["安全策略允许"]
-        Policy --> API["API 服务器"]
-    end
-    
-    Browser -.->|"这两条路<br/>完全不同"| Agent
-    
-    style Browser fill:#22c55e,color:#fff
-    style Agent fill:#ef4444,color:#fff
-    style IT fill:#f97316,color:#fff
-```
-
-**你有前者不代表你有后者。而 Agent 只能走后者。**
-
-### 你真的拿得到 API 权限吗？
-
-以一个普通程序员（非管理员、可能是实习生）的视角：
-
-| 工具 | 浏览器能看 | API 能调 | 卡在哪 |
-|------|----------|---------|--------|
-| **Git (本地)** | ✅ | ✅ | SSH key 在本机，不需要审批 |
-| **飞书文档** | ✅ | ❌ | 创建企业应用要管理员审批 |
-| **钉钉** | ✅ | ❌ | 同上 |
-| **Jira Cloud** | ✅ | ⚠️ | 看公司是否禁用 PAT |
-| **企业邮箱** | ✅ | ❌ | IMAP 通常被安全策略禁用 |
-| **Google Workspace** | ✅ | ❌ | OAuth 要管理员白名单 |
-| **Notion (个人)** | ✅ | ✅ | 个人 integration 不需要管理员 |
-
-结论：**能自由 API 访问的基本只有本机文件、个人 Git、Notion。** 其他全部卡在"组织管理员不批"。
-
-### 回到周报场景
-
-```mermaid
-graph TB
-    Agent["Agent 想帮你写周报"]
-    
-    Agent --> Git["Git log ✅<br/>SSH key 在本机"]
-    Agent --> Feishu["飞书文档 ❌<br/>需要管理员审批企业应用"]
-    Agent --> Jira_t["Jira 工单 ❌<br/>IT 禁用了 PAT"]
-    Agent --> Cal["日历 ❌<br/>飞书日历需要同样审批"]
-    Agent --> Email["邮箱 ❌<br/>IMAP 被安全策略禁用"]
-    
-    Git --> OK["✅ 能拿到的"]
-    Feishu --> Blocked["❌ 拿不到的"]
+    Git --> OK["✅ 能拿到"]
+    Feishu --> Blocked["❌ 拿不到"]
     Jira_t --> Blocked
     Cal --> Blocked
     Email --> Blocked
@@ -165,68 +38,195 @@ graph TB
     style Blocked fill:#ef4444,color:#fff
 ```
 
-5 个数据源，只有 Git 能用。
+不是 Agent 不够聪明，不是 CLI 不够高效——是**数据根本拿不到**。
 
-**"让 Agent 自动写周报"在大部分公司里根本做不到。** 不是 Agent 不够聪明，不是 CLI 不够高效，而是你作为一个普通员工，拿不到 API 权限。
-
-## 第三层：数据孤岛
-
-就算前两层都打通了——平台有 API，公司也批了——你还会遇到第三个问题：
-
-- Git 的 commit 格式跟飞书的文档修改记录完全不同
-- Jira 的工单状态跟日历的会议记录没有关联
-- 邮件里的讨论跟 Git PR 的 review comment 是两套系统
-
-要把这些串成一份周报，你需要一个跨系统的数据模型。目前没有人做好这件事。
-
-## 所以 Agent 真正能自由操作的数据有多少？
+## Agent 的实际能力取决于三个变量
 
 ```mermaid
-pie title "Agent 可自由访问的数据"
-    "本机文件" : 15
-    "个人 Git" : 10
-    "公开互联网" : 20
-    "自己的服务" : 5
-    "组织策略挡住的" : 25
-    "平台封锁的" : 25
+graph LR
+    subgraph "Agent 能力 = 三者的交集"
+        A["LLM 推理能力<br/>✅ 2026 年已经足够"]
+        B["工具调用效率<br/>✅ CLI + Skills 基本解决"]
+        C["可访问的数据范围<br/>❌ 严重不足"]
+    end
+    
+    style A fill:#22c55e,color:#fff
+    style B fill:#22c55e,color:#fff
+    style C fill:#ef4444,color:#fff
 ```
 
-**一半的数据被两层壁垒挡住了。** 而这一半恰恰是你日常工作中最有价值、最想自动化的部分。
+整个行业在卷 LLM 能力和工具协议，但真正的短板是数据访问。就像拥有一辆性能顶级的赛车和一条完美的赛道，但油箱是空的。
 
-## "Agent 能做什么"的现实版本
+## 三层壁垒：为什么数据拿不到
 
-| 场景 | 技术上可行？ | 实际能做到？ | 卡在哪 |
-|------|-----------|-----------|--------|
-| 帮你写代码 | ✅ | ✅ | 本地文件，无壁垒 |
-| 帮你搜索公开信息 | ✅ | ✅ | 互联网公开数据 |
-| 帮你写周报 | ✅ | ❌ | 飞书/Jira API 权限 |
-| 帮你订机票比价 | ✅ | ❌ | 携程/12306 不开放 |
-| 帮你管理客户 | ✅ | ❌ | CRM API 需要 IT 审批 |
-| 帮你处理邮件 | ✅ | ❌ | IMAP 被禁用 |
-| 帮你跨平台搬运内容 | ✅ | ❌ | 各平台不互通 |
+数据拿不到不是一个笼统的问题。它分三层，每层的性质、原因和解法完全不同：
+
+```mermaid
+graph TB
+    subgraph "第一层：平台封锁"
+        W1["微信、淘宝、美团、抖音<br/>没有开放 API<br/>商业模式决定不会开放"]
+    end
+    
+    subgraph "第二层：组织管控"
+        W2["飞书、Jira、Google Workspace<br/>平台有 API，但企业 IT 不批准<br/>安全策略禁止个人创建集成"]
+    end
+    
+    subgraph "第三层：数据孤岛"
+        W3["Git、飞书、Jira、邮箱、日历<br/>各系统数据格式不互通<br/>缺乏统一的数据模型"]
+    end
+    
+    W1 --> W2 --> W3
+    
+    style W1 fill:#ef4444,color:#fff
+    style W2 fill:#f97316,color:#fff
+    style W3 fill:#eab308,color:#fff
+```
+
+大部分讨论集中在第一层。但实际工作中，**第二层才是最多人撞上的墙。**
+
+### 第一层：平台封锁
+
+[上一篇](/posts/cli-vs-mcp-vs-skills/)已经详细分析过：微信不会做 `wx auth login`，淘宝不会开放比价 API，抖音不会给你推荐数据。原因不是技术障碍，而是这些平台的商业模式建立在数据围墙上[^1]。
+
+这里补充一个判断标准：**一个平台会不会对 Agent 开放，取决于开放是否符合其商业利益。**
+
+| 平台类型 | 代表 | 对 Agent 开放？ | 逻辑 |
+|---------|------|----------------|------|
+| 卖订阅/服务的 | GitHub, Notion, Vercel | ✅ 主动开放 | 越多 Agent 接入 → 用户越依赖 → 更多付费 |
+| 卖流量/广告的 | 微信, 淘宝, 抖音 | ❌ 封锁 | Agent 帮用户跳过推荐 → 广告价值下降 |
+| 卖企业服务的 | 飞书, 钉钉 | ⚠️ 有限开放 | Bot 生态丰富 → 企业更依赖平台 |
+
+### 第二层：组织管控——被严重低估的壁垒
+
+这才是大多数开发者在实际工作中会撞上的墙。
+
+当有人说"你对这个数据有权限"，实际上涉及三个完全不同的层面：
+
+```mermaid
+graph TB
+    L1["可视化权限<br/>能在浏览器里看到"] -->|"✅ 你有"| OK1["每天都在用"]
+    L2["API 权限<br/>能通过程序化接口提取"] -->|"❓ 不一定"| Maybe["需要 API Token"]
+    L3["组织授权<br/>公司 IT 允许你调 API"] -->|"❌ 大概率没有"| Nope["安全策略阻止"]
+    
+    style L1 fill:#22c55e,color:#fff
+    style L2 fill:#eab308,color:#fff
+    style L3 fill:#ef4444,color:#fff
+```
+
+你每天打开飞书看文档、在 Jira 看工单、在邮箱收邮件——这些是**可视化权限**。浏览器持有登录态，Cookie 自动携带，一切无感。
+
+但 Agent 走的是完全不同的认证链路：
+
+```mermaid
+graph TB
+    subgraph "浏览器访问"
+        Browser["你的浏览器"]
+        Browser --> Cookie["Cookie / Session<br/>自动携带"]
+        Cookie --> Server["服务器返回数据"]
+    end
+    
+    subgraph "Agent / API 访问"
+        AgentAPI["Agent / 脚本"]
+        AgentAPI -->|"需要"| Token["API Token / OAuth Credential"]
+        Token -->|"需要"| IT["IT 部门审批"]
+        IT -->|"需要"| Policy["安全策略允许"]
+        Policy --> API["API 服务器"]
+    end
+    
+    Browser -.->|"两条完全不同的路径"| AgentAPI
+    
+    style Browser fill:#22c55e,color:#fff
+    style AgentAPI fill:#ef4444,color:#fff
+    style IT fill:#f97316,color:#fff
+```
+
+**你有前者不代表你有后者。Agent 只能走后者。**
+
+以一个普通程序员（非管理员）的视角，各工具的实际 API 可访问性：
+
+| 工具 | 浏览器可看 | API 可调 | 卡在哪里 |
+|------|----------|---------|---------|
+| **Git（本地）** | ✅ | ✅ | SSH key 在本机，无需任何审批 |
+| **飞书文档** | ✅ | ❌ | 创建企业自建应用需要管理员审批[^2] |
+| **钉钉** | ✅ | ❌ | 同上，企业内部应用需要组织管理员授权 |
+| **Jira Cloud** | ✅ | ⚠️ | 取决于公司是否禁用 Personal Access Token |
+| **企业邮箱** | ✅ | ❌ | IMAP/SMTP 通常被安全策略禁用 |
+| **Google Workspace** | ✅ | ❌ | OAuth 应用需要管理员设置白名单 |
+| **Notion（个人）** | ✅ | ✅ | 个人 Integration 不需要管理员参与[^3] |
+
+结论很清晰：**能自由通过 API 访问的，基本只有本地文件、个人 Git 仓库和 Notion 个人空间。** 其余全部卡在组织管理员审批环节。
+
+这也解释了一个现象：为什么 Agent 目前最成功的应用场景是编程辅助？因为代码在你的本地文件系统里，不需要任何人的许可。
+
+### 第三层：数据孤岛——最容易被忽视的工程问题
+
+假设前两层都打通了——平台有 API，公司 IT 也批了。你还是会遇到第三个问题：**数据散落在多个系统中，格式互不兼容。**
+
+以"自动写周报"为例，即使所有数据源都可访问，Agent 需要处理的是：
+
+| 数据源 | 数据格式 | 时间粒度 | 标识方式 |
+|--------|---------|---------|---------|
+| **Git** | commit hash + diff + message | 精确到秒 | 作者邮箱 |
+| **飞书文档** | 文档修改记录 JSON | 精确到分钟 | 飞书 user_id |
+| **Jira** | issue 状态变更 REST API | 精确到秒 | Jira account_id |
+| **日历** | iCal / CalDAV 事件 | 时间段 | 邮箱地址 |
+| **邮箱** | MIME 格式邮件 | 精确到秒 | 邮箱地址 |
+
+五个系统、五种数据格式、三种用户标识方式。要把它们关联成"这周我做了什么"，需要：
+
+1. **身份映射**：你的 Git 邮箱、飞书 user_id、Jira account_id 是同一个人——谁来维护这个映射？
+2. **时间对齐**：Git commit 和 Jira 状态变更怎么关联？一个 commit 可能关联多个 issue，一个 issue 可能跨多个 commit。
+3. **语义提取**：从 commit message、文档修改记录、邮件正文中提取出"做了什么事"，然后去重、归类、排序。
+
+这不是 LLM 推理能力的问题——是缺少一个跨系统的数据编排层。目前没有成熟的解决方案。
+
+## Agent 实际能力的边界
+
+综合三层壁垒，以下是 Agent 在 2026 年的真实能力边界：
+
+| 场景 | 技术可行 | 实际可用 | 受阻于 |
+|------|---------|---------|--------|
+| 编程辅助（写代码、调试） | ✅ | ✅ | 无壁垒——代码在本地 |
+| 搜索公开信息并整理 | ✅ | ✅ | 无壁垒——互联网公开数据 |
+| 自动写周报 | ✅ | ❌ | 第二层：飞书/Jira API 权限 |
+| 跨平台比价（机票、酒店） | ✅ | ❌ | 第一层：携程/12306 不开放 |
+| 客户关系管理 | ✅ | ❌ | 第二层：CRM API 需 IT 审批 |
+| 自动处理邮件 | ✅ | ❌ | 第二层：IMAP 被禁用 |
+| 跨平台内容发布 | ✅ | ❌ | 第一层：各平台不互通 |
+| 个人健康数据分析 | ✅ | ❌ | 第一层：健康 App 不开放 |
 
 **技术上全部可行。实际上大部分做不到。**
-
-这就是为什么 Agent 目前最成功的场景是编程辅助——因为代码在你本地，不需要任何人的许可。
 
 ## 结论
 
 Agent 帮不了你，不是因为它不够聪明。是因为三层壁垒：
 
-1. **平台不开放**：商业模式建立在数据围墙上，不会给你 API
-2. **组织不让用**：就算平台有 API，你的公司 IT 可能不批准
-3. **数据串不起来**：就算前两层都通了，10 个系统的数据格式各不相同
+1. **平台封锁**：商业模式建立在数据围墙上，不会主动开放 API
+2. **组织管控**：就算平台有 API，企业 IT 的安全策略可能不允许个人使用
+3. **数据孤岛**：就算前两层都通了，多个系统的数据格式和用户标识互不兼容
 
-第一层是商业博弈问题，第二层是组织管理问题，第三层是数据工程问题。
+第一层是商业博弈问题，第二层是组织管理问题，第三层是数据工程问题。性质不同，解法不同，但效果一样——Agent 拿不到它需要的数据。
 
-而大部分 Agent 产品的营销文案只字不提这些，直接假设"你有 API 权限"。
+而大部分 Agent 产品的营销只字不提这些，直接假设"你有 API 权限"。
 
-下次有人跟你说"用 Agent 自动化你的工作流很简单"，先问自己：
+下次有人向你推销"用 Agent 自动化工作流"时，不妨先问三个问题：
 
-> **这些数据，平台给 API 了吗？API 公司 IT 让我用吗？数据能跨系统串起来吗？**
+> 1. 这些数据，平台提供了 API 吗？
+> 2. 这些 API，公司 IT 允许我使用吗？
+> 3. 不同系统的数据，能关联起来吗？
 
-三个都是 Yes 才行。现实中，三个都是 Yes 的场景少得可怜。
+三个都是 Yes 才能真正落地。在 2026 年的现实中，三个都是 Yes 的场景仍然屈指可数。
 
 ---
 
-*这是 "Agent 生态思考" 系列第二篇。下一篇聊聊：既然数据拿不到，那谁在用什么方式绕路？阿里的闭环生态、豆包手机的屏幕爬虫、以及什么力量可能真正推动开放。*
+*这是 "Agent 生态思考" 系列第二篇。下一篇聊：既然数据拿不到，那谁在用什么方式绕路？阿里的闭环生态、豆包手机的屏幕爬虫、以及什么力量可能最终推动开放。*
+
+---
+
+## 参考资料
+
+[^1]: 关于平台数据封锁与商业模式的关系，参见本系列[第一篇](/posts/cli-vs-mcp-vs-skills/)的分析。另见 [MCP vs. CLI for AI Agents: The Answer Is Both](https://aiproductivity.ai/news/mcp-vs-cli-ai-agents-comparison/)。
+
+[^2]: 飞书企业自建应用创建流程需要企业管理员审批，参见[飞书开放平台文档](https://open.feishu.cn/document/home/index)。普通员工无法自行创建具有 `im:message` 等权限的应用。
+
+[^3]: Notion 的 Internal Integration 允许个人用户直接创建，无需工作区管理员参与，参见 [Notion API 文档](https://developers.notion.com/docs/create-a-notion-integration)。这是目前少数支持个人级别 OAuth 的协作工具之一。
