@@ -78,6 +78,10 @@ buildExpired = false
     [languages.zh.params]
       description = "Abin 的个人博客"
 
+      [languages.zh.params.homeInfoParams]
+        Title = "Hey 👋"
+        Content = "我是 Abin，这里记录我对技术和产品的思考。"
+
     [[languages.zh.menu.main]]
       identifier = "posts"
       name = "文章"
