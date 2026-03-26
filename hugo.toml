@@ -43,6 +43,10 @@ buildExpired = false
     name = "juejin"
     url = "https://juejin.cn/user/2725022591102297/posts"
 
+  [[params.socialIcons]]
+    name = "csdn"
+    url = "https://blog.csdn.net/Trashwbin?type=blog"
+
 [params.assets]
   disableHLJS = true
   favicon = "/favicon.svg"
