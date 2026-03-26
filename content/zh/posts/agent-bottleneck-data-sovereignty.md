@@ -86,9 +86,13 @@ graph TB
 
 ### 第一层：平台封锁
 
-[上一篇](/posts/cli-vs-mcp-vs-skills/)已经详细分析过：微信不会做 `wx auth login`，淘宝不会开放比价 API，抖音不会给你推荐数据。原因不是技术障碍，而是这些平台的商业模式建立在数据围墙上[^1]。
+微信不会做 `wx auth login`，淘宝不会开放比价 API，抖音不会给你推荐数据。[上一篇](/posts/cli-vs-mcp-vs-skills/)从技术角度论证了 CLI 完全能实现 OAuth（`gh auth login` 就是先例），所以这不是技术障碍。
 
-这里补充一个判断标准：**一个平台会不会对 Agent 开放，取决于开放是否符合其商业利益。**
+**那为什么不做？因为数据封锁是这些平台商业模式的根基。**
+
+Agent 一旦能替用户做最优决策——比价、比评分、跨平台搜索——平台就失去了通过推荐算法引导用户消费的能力。这直接威胁广告和流量变现的核心营收。
+
+一个简单的判断标准：**平台会不会对 Agent 开放，取决于开放是否符合其商业利益。**
 
 | 平台类型 | 代表 | 对 Agent 开放？ | 逻辑 |
 |---------|------|----------------|------|
@@ -225,7 +229,7 @@ Agent 帮不了你，不是因为它不够聪明。是因为三层壁垒：
 
 ## 参考资料
 
-[^1]: 关于平台数据封锁与商业模式的关系，参见本系列[第一篇](/posts/cli-vs-mcp-vs-skills/)的分析。另见 [MCP vs. CLI for AI Agents: The Answer Is Both](https://aiproductivity.ai/news/mcp-vs-cli-ai-agents-comparison/)。
+[^1]: 关于平台数据封锁与商业模式的关系，参见 [MCP vs. CLI for AI Agents: The Answer Is Both](https://aiproductivity.ai/news/mcp-vs-cli-ai-agents-comparison/) 以及 [The MCP vs CLI Debate Is Missing the Point](https://mkweb.dev/blog/mcp-vs-cli-missing-the-point)。本系列[第一篇](/posts/cli-vs-mcp-vs-skills/)从技术角度论证了 CLI 完全能做 OAuth，因此平台不开放的原因是商业选择而非技术限制。
 
 [^2]: 飞书企业自建应用创建流程需要企业管理员审批，参见[飞书开放平台文档](https://open.feishu.cn/document/home/index)。普通员工无法自行创建具有 `im:message` 等权限的应用。
 
