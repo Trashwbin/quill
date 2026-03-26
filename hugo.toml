@@ -39,6 +39,10 @@ buildExpired = false
     name = "github"
     url = "https://github.com/trashwbin"
 
+  [[params.socialIcons]]
+    name = "juejin"
+    url = "https://juejin.cn/user/2725022591102297/posts"
+
 [params.assets]
   disableHLJS = true
   favicon = "/favicon.svg"
