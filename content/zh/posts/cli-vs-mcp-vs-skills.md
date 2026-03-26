@@ -26,14 +26,14 @@ mermaid: true
 MCP 正在被"退货"：
 
 - Perplexity 发博客宣布准备全面抛弃 MCP 转向 CLI[^4]
-- 开发者吐槽："MCP 就像给自行车装火箭推进器，太重了"
 - Eric Holmes 的 "MCP is dead. Long live the CLI" 登上 Hacker News 热榜[^5]
+- ScaleKit 基准测试：MCP 28% 失败率（超时），CLI 100% 成功[^9]
 - **连 MCP 的"亲爹" Anthropic，自家的 Claude Code 也更像 CLI 而非 MCP**
 
 CLI 的"文艺复兴"：
 
 - Andrej Karpathy 2026 年 2 月在 X 上说 CLI "super exciting precisely because they are legacy"[^6]
-- GitHub 上最火的项目从"MCP 工具"变成"AI 命令行助手"
+- Smithery 发布 756 次基准测试，系统对比 CLI vs MCP 在 Codex 和 Claude Code 上的表现[^13]
 - Google 专门开源了给 AI 用的命令行工具[^7]
 
 Skills 的悄然崛起：
@@ -259,3 +259,5 @@ Token 成本是工程问题，协议选择是架构问题，**数据开放是政
 [^11]: Simon Willison, ["Claude's Skills"](https://simonwillison.net/2025/Oct/16/claude-skills/), Oct 2025. 在 Claude Skills 发布时称其 "maybe a bigger deal than MCP"。
 
 [^12]: Anthropic MCP progressive discovery，参见 ["MCP Tool Search: Claude Code Context Pollution Guide"](https://www.atcyrus.com/stories/mcp-tool-search-claude-code-context-pollution-guide)。Token 开销降低 85%，准确率提升数据来自 [Skills vs MCP: The Token Efficiency War](https://menonlab-blog-production.up.railway.app/blog/skills-vs-mcp-token-efficiency-ai-agents/)。
+
+[^13]: Smithery (Henry Mao), ["MCP vs CLI is the wrong fight"](https://smithery.ai/blog/mcp-vs-cli-is-the-wrong-fight), Mar 2026. 756 次跨 3 个 API 的基准测试，覆盖 Codex 和 Claude Code，含 skills、code mode、pretraining bias 等维度分析。
