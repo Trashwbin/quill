@@ -13,7 +13,7 @@ mermaid: true
 
 > Agent 该用什么方式调用外部工具？
 
-三个阵营打得不可开交：
+三个阵营各执一词：
 
 **MCP 派**（Model Context Protocol）：Anthropic 2024 年底推出的开放标准[^1]。通过 JSON-RPC 协议统一封装各类服务接口，Agent 一次接入就能跨平台调用多种工具。OpenAI、Google、Microsoft、AWS 全部跟进[^2]。听起来很美好。
 
@@ -21,22 +21,22 @@ mermaid: true
 
 **Skills 派**：一个 Markdown 文件当"小抄"，教 Agent 在什么场景用什么工具。30 token 待命，触发时才加载完整指令。Flask 作者 Armin Ronacher 全面转向这个方案[^3]。
 
-## 最新战况（吃瓜指南）
+## 2026 年 3 月：各方最新动态
 
-MCP 正在被"退货"：
+MCP 阵营的压力：
 
 - Perplexity 发博客宣布准备全面抛弃 MCP 转向 CLI[^4]
 - Eric Holmes 的 "MCP is dead. Long live the CLI" 登上 Hacker News 热榜[^5]
 - ScaleKit 基准测试：MCP 28% 失败率（超时），CLI 100% 成功[^9]
-- **连 MCP 的"亲爹" Anthropic，自家的 Claude Code 也更像 CLI 而非 MCP**
+- 值得注意的是，MCP 的发起者 Anthropic，其自家产品 Claude Code 的核心架构也更接近 CLI 而非 MCP
 
-CLI 的"文艺复兴"：
+CLI 阵营的势头：
 
 - Andrej Karpathy 2026 年 2 月在 X 上说 CLI "super exciting precisely because they are legacy"[^6]
 - Smithery 发布 756 次基准测试，系统对比 CLI vs MCP 在 Codex 和 Claude Code 上的表现[^13]
 - Google 专门开源了给 AI 用的命令行工具[^7]
 
-Skills 的悄然崛起：
+Skills 阵营的崛起：
 
 - Simon Willison（Python 社区知名开发者）在 Claude Skills 发布时称其 "maybe a bigger deal than MCP"[^11]
 - Armin Ronacher 全面从 MCP 转向 Skills，并给出了核心理由[^3]：
@@ -109,11 +109,11 @@ graph LR
 | CLI + Skills | ~$4.50 | 100% |
 | MCP | ~$55.20 | 72%（28% 超时） |
 
-CLI 便宜 17 倍，可靠性 100% vs 72%。成本按 Claude Sonnet 4 定价（$3/M input，$15/M output）计算[^10]。碾压。
+CLI 便宜 17 倍，可靠性 100% vs 72%。成本按 Claude Sonnet 4 定价（$3/M input，$15/M output）计算[^10]。差距显著。
 
 ## 到这里，CLI 似乎完胜
 
-Token 更省、模型更熟悉、可以 pipe、跟 Skills 搭配更好。各个维度 MCP 都被吊打。
+Token 更省、模型更熟悉、支持管道操作、与 Skills 天然互补。从效率指标看，MCP 在各个维度都处于劣势。
 
 ### 公允地说：MCP 在自我修正
 
@@ -193,7 +193,7 @@ graph TB
     style MCP_std fill:#6366f1,color:#fff
 ```
 
-接 1 个平台，`gh` 就够了。接 50 个平台，每个都搞一套 CLI auth 就崩溃了。MCP 提供了"大家都用同一套协议开放"的可能性。
+接入 1 个平台，`gh` 就够了。但当需要接入 50 个平台时，每个平台各自一套 CLI auth 流程的维护成本是不可接受的。MCP 提供了"所有平台使用同一套协议开放"的标准化可能性。
 
 **但标准化有个前提：平台愿意实现它。**
 
@@ -218,9 +218,9 @@ graph TB
     style Unsolved fill:#ef444420,stroke:#ef4444
 ```
 
-GitHub 做了 `gh` → CLI 碾压一切。
-Vercel 做了 `vercel login` → 部署丝滑无比。
-微信没做 `wx` → 你只能爬虫，或者等。
+GitHub 做了 `gh`，CLI 在 GitHub 生态内全面领先。
+Vercel 做了 `vercel login`，部署体验极其流畅。
+微信没做 `wx`——你只能选择爬虫，或者等待。
 
 **决定 Agent 能力边界的，不是你选了 CLI 还是 MCP，而是平台愿不愿意给你一根管道——不管什么形式的管道。**
 
