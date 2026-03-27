@@ -140,6 +140,10 @@ buildExpired = false
     [languages.en.params]
       description = "Abin's personal blog"
 
+      [languages.en.params.homeInfoParams]
+        Title = "Hey 👋"
+        Content = "I'm Abin. I write about tech, agents, and product thinking."
+
     [[languages.en.menu.main]]
       identifier = "posts"
       name = "Posts"
