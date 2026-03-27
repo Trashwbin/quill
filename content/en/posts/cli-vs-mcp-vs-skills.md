@@ -157,20 +157,20 @@ So:
 
 > **CLI doesn't "architecturally lack OAuth support." `gh` and `vercel` have already proven that.**
 
-If WeChat (China's dominant messaging super-app) wanted to build a `wx auth login`, the flow would be identical to `gh`:
+If WhatsApp wanted to build a `whatsapp auth login`, the flow would be identical to `gh`:
 
 ```bash
-$ wx auth login
-→ WeChat QR code page opens
-→ Confirm authorization on your phone
+$ whatsapp auth login
+→ Browser opens WhatsApp authorization page
+→ Confirm on your phone
 → Token saved locally
-→ wx send friend "hello"
-→ wx moments list
+→ whatsapp send alice "hello"
+→ whatsapp groups list
 ```
 
 **Zero technical barriers. But it will never exist.**
 
-Not because it can't be done — because doing it would mean voluntarily dismantling the walled garden and anti-scraping infrastructure they've spent years building.
+Not because it can't be done — because doing it would mean voluntarily dismantling the walled garden and anti-scraping infrastructure that Meta has spent years building.
 
 ## So What Is MCP Actually Good For?
 
@@ -211,7 +211,7 @@ graph TB
     end
     
     Debate --> Solved["Already has an answer<br/>CLI is more efficient / MCP is more standard / Skills is more lightweight"]
-    Real --> Unsolved["No answer in sight<br/>WeChat won't build wx CLI<br/>Taobao won't open a price comparison API<br/>Meituan won't share rating data"]
+    Real --> Unsolved["No answer in sight<br/>WhatsApp won't build a CLI<br/>Amazon won't open a price comparison API<br/>DoorDash won't share rating data"]
     
     style Debate fill:#94a3b8,color:#fff
     style Real fill:#ef4444,color:#fff
@@ -221,9 +221,9 @@ graph TB
 
 GitHub built `gh` — CLI dominates within the GitHub ecosystem.
 Vercel built `vercel login` — the deployment experience is seamless.
-WeChat never built `wx` — your only options are scraping, or waiting.
+WhatsApp never built a CLI — your only options are scraping, or waiting.
 
-Taobao (China's largest e-commerce platform) and Meituan (China's dominant food delivery and local services app) are in the same boat — the data exists, the technical capability exists, the willingness doesn't.
+Amazon, DoorDash, TikTok — they're all in the same boat. The data exists, the technical capability exists, the willingness doesn't.
 
 **What determines the boundaries of what an Agent can do isn't whether you chose CLI or MCP. It's whether the platform is willing to give you a pipe — in whatever form.**
 

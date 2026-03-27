@@ -32,7 +32,7 @@ graph TB
     style S3 fill:#94a3b8,color:#fff
 ```
 
-Strategy 3 has plenty of representatives. OpenClaw runs 24/7 on a Mac mini, and the community has built Skills for auto-generating Feishu daily reports[^2] and financial statements. Perplexity launched Personal Computer[^5] in March 2026, also running on a Mac mini, connecting to 40+ services including Gmail, Slack, GitHub, Notion, and Salesforce for $200/month. Anthropic's Claude Cowork positions itself as a locally autonomous Agent. The demo videos show data flowing seamlessly across platforms.
+Strategy 3 has plenty of representatives. OpenClaw runs 24/7 on a Mac mini, and the community has built Skills for auto-generating daily standup reports[^2] and financial statements. Perplexity launched Personal Computer[^5] in March 2026, also running on a Mac mini, connecting to 40+ services including Gmail, Slack, GitHub, Notion, and Salesforce for $200/month. Anthropic's Claude Cowork positions itself as a locally autonomous Agent. The demo videos show data flowing seamlessly across platforms.
 
 These capabilities are real. But they all share one prerequisite: **you already have API access to every tool involved.** As analyzed in [post two](/posts/agent-bottleneck-data-sovereignty/), that prerequisite simply doesn't hold in most real work environments — platforms may not expose APIs at all, and even when they do, your company's IT department may not approve access.
 
@@ -82,7 +82,7 @@ DingTalk, with its 800 million users, underwent a complete rewrite of its underl
 | **Alibaba (Qwen + Wukong)** | E-commerce + payments + mobility + local services + enterprise collaboration + cloud | Social, content |
 | **Tencent** | Social + content + payments + WeCom | E-commerce loop, mobility |
 | **ByteDance** | Content + local services + Lark | Payments, supply chain |
-| **Baidu** | Search + maps + AI models | Transaction loop, enterprise collaboration |
+| **Google** | Search + maps + AI models | Transaction loop, enterprise collaboration |
 
 Alibaba's edge: **closest to the transaction, and closed loops on both consumer and enterprise sides.** The ultimate value of an Agent isn't conversation — it's completing the full chain of decision → execution → payment. Alibaba is currently the only platform that has made this chain work on both the consumer side (Qwen App) and the enterprise side (Wukong).
 
@@ -100,12 +100,12 @@ graph LR
     
     U --> Gap["Conflict point"]
     A --> Gap
-    Gap --> Result["Taobao Flash Buy helps you order bubble tea<br/>but won't tell you Meituan is cheaper"]
+    Gap --> Result["Taobao Flash Buy helps you order bubble tea<br/>but won't tell you DoorDash is cheaper"]
     
     style Gap fill:#ef4444,color:#fff
 ```
 
-**The essence of a private-ecosystem Agent: trading the convenience of AI for the user's right to comparison-shop.** Qwen can help you automatically claim coupons, bundle orders, and check out on Taobao Flash Buy — but it won't tell you the same cup of bubble tea might be cheaper on Meituan Delivery.
+**The essence of a private-ecosystem Agent: trading the convenience of AI for the user's right to comparison-shop.** Qwen can help you automatically claim coupons, bundle orders, and check out on Taobao Flash Buy — but it won't tell you the same order might be cheaper on DoorDash.
 
 ## Strategy 2: Climb Over the Wall — Scraping in a New Form
 
