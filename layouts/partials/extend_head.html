@@ -11,7 +11,7 @@
   .post-with-sidebar {
     display: flex;
     gap: 2rem;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
@@ -77,6 +77,15 @@
   .post-single.has-sidebar {
     flex: 1;
     min-width: 0;
+    max-width: none;
+  }
+
+  /* Override PaperMod's default content width when sidebar is present */
+  .post-with-sidebar .main {
+    max-width: none;
+  }
+  .post-with-sidebar .post-content {
+    max-width: none;
   }
 }
 
