@@ -42,10 +42,6 @@ buildExpired = false
     url = "https://github.com/trashwbin"
 
   [[params.socialIcons]]
-    name = "csdn"
-    url = "https://blog.csdn.net/Trashwbin?type=blog"
-
-  [[params.socialIcons]]
     name = "dev"
     url = "https://dev.to/trashwbin"
 
@@ -56,6 +52,10 @@ buildExpired = false
   [[params.socialIcons]]
     name = "juejin"
     url = "https://juejin.cn/user/2725022591102297/posts"
+
+  [[params.socialIcons]]
+    name = "csdn"
+    url = "https://blog.csdn.net/Trashwbin?type=blog"
 
 [params.assets]
   disableHLJS = true
