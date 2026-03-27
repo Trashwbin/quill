@@ -46,6 +46,14 @@ buildExpired = false
     url = "https://blog.csdn.net/Trashwbin?type=blog"
 
   [[params.socialIcons]]
+    name = "dev"
+    url = "https://dev.to/trashwbin"
+
+  [[params.socialIcons]]
+    name = "hashnode"
+    url = "https://abin.hashnode.dev"
+
+  [[params.socialIcons]]
     name = "juejin"
     url = "https://juejin.cn/user/2725022591102297/posts"
 
