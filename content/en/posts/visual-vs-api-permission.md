@@ -63,7 +63,7 @@ graph TB
 
 This isn't a demo — Alibaba is putting real money behind making this closed loop work. The Qwen App's "First Order of the Day" promotion[^10] distributes **15 million coupons daily**, covering food delivery, hotels, flights, ride-hailing, and movie tickets, with all payments processed through Alipay AI Pay. A user can say "order 30 cups of bubble tea for me" and Qwen handles the entire flow: understanding the request, selecting items, automatically claiming coupons, and landing directly on the checkout page.
 
-Quantum Bit's assessment: Alibaba has become "the world's first tech company to open the full AI 'search-decision-payment-fulfillment' chain at scale"[^9]. Technically, it's built on MCP + A2A protocols with a multi-Agent architecture — a primary Agent breaks down tasks, and multiple sub-Agents execute independently within their respective domains.
+A Chinese tech publication described Alibaba as "the world's first tech company to open the full AI 'search-decision-payment-fulfillment' chain at scale"[^9]. Technically, it's built on MCP + A2A protocols with a multi-Agent architecture — a primary Agent breaks down tasks, and multiple sub-Agents execute independently within their respective domains.
 
 **Auth within the ecosystem is nearly invisible** — on first use, you complete an OAuth-style account binding between Qwen and Amap/Taobao/Fliggy (similar to `gh auth login`), and every subsequent operation carries the session automatically. The entire Alibaba ecosystem shares the Alipay account system, so users never have to re-authorize.
 
@@ -144,7 +144,7 @@ Several representative products have taken this route, each with different techn
 
 **Different technical forms, same fundamental approach: bypassing the platform's authorization system to access data and execute actions without going through the API front door.** From scraping web pages to scraping screens to spinning up virtual machines, the techniques keep evolving — but the fragility and legal gray areas haven't fundamentally improved. A UI redesign breaks everything. A platform ban shuts it down. Legal risk hangs over it indefinitely.
 
-And "climbing the wall" isn't just fragile — **it's dangerous.** The OpenClaw security incident[^1] is a cautionary tale:
+And these workaround approaches aren't just fragile — **they're dangerous.** The OpenClaw security incident[^1] is a cautionary example:
 
 - **10,000+ instances** leaked user credentials due to misconfiguration
 - **12% of community Skills** were found to be malicious — injecting code, stealing data, establishing persistent backdoors
@@ -306,7 +306,7 @@ As for how long that takes — probably slower than the tech optimists think, an
 
 [^8]: Manus: a general-purpose Agent platform where each task gets its own dedicated Firecracker microVM sandbox (2 vCPU, 8GB RAM), with the Agent running autonomously in a full cloud environment. Acquired by Meta in 2026. See [Manus Sandbox core mechanism explained](https://www.53ai.com/news/LargeLanguageModel/2026011671960.html).
 
-[^9]: Qwen App's "Qwen Do It" feature integrates Taobao Flash Buy, Fliggy, Amap, Damai, Alipay, and other Alibaba ecosystem services, enabling the full "search → decision → payment → fulfillment" chain. Built on MCP + A2A protocols with a multi-Agent architecture. See Quantum Bit, ["AI is starting to 'take action' — and Alibaba's Qwen is leading the world"](https://zhuanlan.zhihu.com/p/1995444089915728132).
+[^9]: Qwen App's "Qwen Do It" feature integrates Taobao Flash Buy, Fliggy, Amap, Damai, Alipay, and other Alibaba ecosystem services, enabling the full "search → decision → payment → fulfillment" chain. Built on MCP + A2A protocols with a multi-Agent architecture. See the Chinese tech publication 量子位, ["AI is starting to 'take action' — and Alibaba's Qwen is leading the world"](https://zhuanlan.zhihu.com/p/1995444089915728132).
 
 [^10]: Qwen App "First Order of the Day" promotion rules: 15 million coupons distributed daily, covering food delivery, snacks and groceries, hotels, movie tickets, flights, train tickets, and ride-hailing. Services fulfilled by Taobao Flash Buy, Damai, Fliggy, and Amap; payments and coupon redemption handled by Alipay. Data source: Qwen App promotion rules page (effective February 18, 2026).
 
