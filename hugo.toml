@@ -21,6 +21,7 @@ buildExpired = false
 [params]
   env = "production"
   author = "Abin"
+  images = ["/og-default.png"]
   defaultTheme = "auto"  # auto / dark / light
   ShowReadingTime = true
   ShowShareButtons = false
