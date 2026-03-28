@@ -1,189 +1,177 @@
 ---
-title: "谁的缰绳更好：Harness 生态的分层与路线之争"
+title: "谁的缰绳更好：Harness 生态竞争全景"
 date: 2026-03-28T10:00:00+08:00
 draft: false
 series: ["Agent 生态思考"]
-tags: ["AI Agent", "Harness Engineering", "OpenCode", "开源", "生态竞争"]
-summary: "Harness Engineering 刚有了名字，生态就已经开始分层了：harness 本体、优化层、教学层各自独立演化。而分化的驱动力不只是技术，更是开放性之争从数据层蔓延到了 harness 层。"
+tags: ["AI Agent", "Harness Engineering", "OpenCode", "生态竞争"]
+summary: "Harness 生态已经远不止几个 coding agent 在打擂台了。终端、IDE、浏览器、个人助理、企业平台——不同形态的 harness 正在沿着多个维度同时竞争。这篇试着画一张竞争地图。"
 mermaid: true
 ---
 
-> 上一篇讨论了 Harness Engineering 作为一门工程学科正在形成（[第四篇](/posts/harness-engineering-software-engineering/)）。这篇接着问一个自然的问题：**既然大家都在造 harness，谁的更好？怎么定义"更好"？竞争的本质又是什么？**
+> [上一篇](/posts/harness-engineering-software-engineering/)我们讨论了 Harness Engineering 正在从散装实践变成一门工程学科。但学科刚有雏形，生态就已经很热闹了。这篇不站队，只画地图：**当前的 harness 生态长什么样？竞争沿着哪些方向在发生？各自的取舍是什么？**
 
-## Harness 已经不是一个东西了
+## Harness 生态已经很大了
 
-"Harness"这个词刚开始被讨论时，大家说的像是同一件事：模型外面那套系统。但只要稍微看一下当下的生态，就会发现它已经在分层。
+如果你只关注 coding agent，会以为 harness 就是 Claude Code 和 OpenCode 在打擂台。实际上，当前的 harness 生态远不止于此。
+
+仅看几个头部项目的规模：
+
+| 产品 | 领域 | 规模 |
+|---|---|---|
+| OpenClaw | 个人助理（邮件/航班/智能家居） | 339k ⭐ |
+| Dify | 通用 agent 平台 | 135k ⭐ |
+| OpenCode | 终端 coding agent | 132k ⭐ |
+| ECC | Harness 优化层 | 114k ⭐ |
+| Gemini CLI | 终端 coding agent | 99k ⭐ |
+| Browser Use | 浏览器自动化 | 85k ⭐ |
+| Claude Code | 终端 coding agent | npm 周下载 1058 万 |
+| Codex CLI | 终端 coding agent | 68k ⭐ |
+| Cline | IDE coding agent | 60k ⭐ |
+| OMO | Harness 优化层 | 44k ⭐ |
+| Aider | 终端 coding agent | 42k ⭐ |
+| Continue | IDE coding agent | 32k ⭐ |
+
+这还没算 Cursor（闭源，$2B ARR）、Windsurf（闭源）、Devin（云端，$73M ARR）、Salesforce Agentforce、Microsoft Copilot Studio 这些不在 GitHub 上公开竞争但体量巨大的玩家。
+
+Harness 不是 coding agent 的专利。个人助理需要 harness（消息通道 + 工具 + 技能库），浏览器 agent 需要 harness（Playwright + DOM 解析 + 状态管理），企业 agent 需要 harness（CRM + 权限 + 工作流引擎）。**只要有模型在干活，就需要 harness。**
+
+## 竞争沿着哪些维度在发生
+
+这场竞争不是单线的"谁更好"，而是同时在多个维度上展开。
+
+### 形态之争：终端 vs IDE vs 浏览器 vs 云端
 
 ```mermaid
 graph LR
-    subgraph "Harness 本体"
-        A1[Claude Code<br/>83.8k ⭐]
-        A2[OpenCode<br/>120k ⭐]
-        A3[Codex CLI]
+    subgraph "终端"
+        T1[OpenCode<br/>132k ⭐]
+        T2[Claude Code]
+        T3[Codex CLI<br/>68k ⭐]
+        T4[Gemini CLI<br/>99k ⭐]
+        T5[Aider<br/>42k ⭐]
     end
 
-    subgraph "Harness 优化层"
-        B1[Everything Claude Code<br/>114k ⭐]
-        B2[Oh My OpenAgent<br/>44.3k ⭐]
+    subgraph "IDE"
+        I1[Cline<br/>60k ⭐]
+        I2[Cursor]
+        I3[Continue<br/>32k ⭐]
+        I4[Windsurf]
     end
 
-    subgraph "Harness 教学"
-        C1[Learn Claude Code<br/>41.5k ⭐]
-        C2[Anthropic Academy]
+    subgraph "浏览器 / 桌面"
+        B1[Browser Use<br/>85k ⭐]
+        B2[OpenClaw<br/>339k ⭐]
     end
 
-    A1 --> B1
-    A2 --> B2
-    A1 --> C1
-    A1 --> C2
+    subgraph "云端"
+        C1[Devin]
+        C2[Dify<br/>135k ⭐]
+    end
 
-    style A1 fill:#6366f1,color:#fff
-    style A2 fill:#22c55e,color:#fff
-    style B1 fill:#f97316,color:#fff
+    style T1 fill:#22c55e,color:#fff
+    style I1 fill:#6366f1,color:#fff
     style B2 fill:#f97316,color:#fff
-    style C1 fill:#94a3b8,color:#fff
     style C2 fill:#94a3b8,color:#fff
 ```
 
-这三层在解决不同的问题：
+不同形态意味着不同的使用场景和用户预期：
 
-- **Harness 本体**（Claude Code、OpenCode、Codex CLI）提供的是 agent 的执行引擎：agent loop、工具调用、上下文管理、沙箱。你装上就能用。
-- **Harness 优化层**（Everything Claude Code、Oh My OpenAgent）不替代本体，而是装在上面：更好的规则、更多的钩子、记忆持久化、验证回环、安全扫描。它们让本体跑得更好。
-- **Harness 教学**（Learn Claude Code、Anthropic Academy）教你理解 harness 是怎么回事，以及怎么自己造一个。
+- **终端类**（OpenCode、Claude Code、Codex CLI、Gemini CLI、Aider）面向习惯命令行的开发者，优势是轻量、可脚本化、可集成进 CI/CD
+- **IDE 类**（Cline、Cursor、Continue、Windsurf）面向习惯编辑器的开发者，优势是上下文感知更直观、和编辑流程无缝衔接
+- **浏览器 / 桌面类**（Browser Use、OpenClaw）面向非 coding 场景——网页操作、个人事务管理、智能家居控制
+- **云端类**（Devin、Dify）面向需要全自主执行或可视化编排的团队
 
-这个分层本身就是"工程学科正在形成"的标志。就像 Web 开发从"一个人写全栈"到"前端/后端/DevOps 分层"的过程一样，harness 生态也开始有了自己的基础设施层、应用层和教育层。
+目前没有一个形态在"统治"市场。终端类在开发者社区声量最大，但 Cursor 的 $2B ARR 说明 IDE 类的商业价值可能更高；OpenClaw 的 339k 星说明非 coding 场景的需求可能比 coding 更广。
 
-## 同一层里，思路也在分化
+### 深度之争：配置包 vs 编排系统
 
-即使是同一层的产品，做法也完全不同。以 harness 优化层为例：
+即使在同一个形态里，harness 做到什么深度也在分化。以 harness 优化层为例：
 
-**Everything Claude Code（ECC）** 的做法是：给现有 harness 注入更好的配置[^1]。
+**Everything Claude Code（ECC）**[^1] 的做法是注入更好的配置——rules、hooks、skills、MCP configs 打包在一起。你装上之后，harness 本体的行为被规则引导得更好，但运行方式不变。
 
-它本质上是一个 **配置包**——rules、hooks、skills、MCP configs 打包在一起，你装上之后，harness 本体的行为被规则引导得更好。但它不改变 harness 的运行方式。agent 怎么规划、怎么分工、怎么验证，这些逻辑仍然由 harness 本体决定。
-
-**Oh My OpenAgent（OMO）** 的做法完全不同：它重新定义了 agent 怎么分工[^2]。
-
-它不只是注入规则，而是在 harness 之上搭了一层完整的编排系统：有专门负责规划的 agent（Prometheus），有专门负责执行的 agent（Atlas），有专门负责审查的 agent（Metis、Momus），有专门负责深度研究的 agent（Hephaestus）。规划和执行被显式分离，验证链条是独立的。
+**Oh My OpenAgent（OMO）**[^2] 的做法完全不同——它在 harness 之上搭了一层编排系统：规划（Prometheus）、执行（Atlas）、审查（Metis、Momus）、深度研究（Hephaestus）各有专职 agent，规划和执行被显式分离。
 
 | | ECC | OMO |
 |---|---|---|
 | 核心思路 | 给 harness 注入更好的规则 | 在 harness 之上搭编排系统 |
-| 怎么工作 | rules + hooks + skills 配置包 | 多 agent 分工 + 路由 + 独立验证 |
-| 规划层 | 没有独立规划，靠 rules 引导 | Prometheus 专职规划，Atlas 专职执行 |
+| 改变了什么 | 规则和钩子 | agent 的分工方式 |
 | 跨平台 | Claude Code、Codex、OpenCode、Cursor | 主要跑在 OpenCode 上 |
-| 类比 | 给车换更好的轮胎和导航 | 给车换一套自动驾驶系统 |
+| 代价 | 深度有限 | 更重、绑定更紧 |
 
-这不是"谁更好"的问题，而是对**"harness 该做到什么程度"**的不同回答。ECC 认为 harness 本体已经够好了，优化层只需要提供更好的配置；OMO 认为 harness 本体的编排能力不够，需要在上面再建一层。
+这不是谁更好的问题，而是对 **"harness 该做到什么程度"** 的不同回答。
 
-两种思路都有道理，也都有各自的代价：ECC 更轻、更跨平台，但深度有限；OMO 更重、更深度自主，但和 OpenCode 绑定更紧。
+### 领域之争：专用 vs 通用
 
-## OpenCode 的故事：一场不是技术驱动的爆发
+有些 harness 只做一件事（coding、浏览器操作、客服），有些试图做所有事。
 
-如果只看 GitHub 星数，OpenCode（120k）已经超过了 Claude Code（83.8k）。但这个数字背后的故事，比单纯的技术竞争有意思得多。
+- **专用型**：Claude Code 只做 coding；Browser Use 只做浏览器操作；Salesforce Agentforce 只服务 Salesforce 生态
+- **通用型**：OpenClaw 什么都能做（邮件、航班、智能家居、比价、日历）；Dify 提供可视化工作流编排，不限定领域
 
-OpenCode 的爆发不是因为它在某个 benchmark 上跑赢了 Claude Code，而是因为它出现在了一个**情绪窗口**里：
+专用型的优势是深度——它可以为特定场景做极致优化。通用型的优势是灵活——用户不需要为每个场景换一个 agent。但通用型的风险是"什么都能做，什么都不精"。
 
-**2026 年 1 月**，OpenCode 两周内涨了 18,000 颗星，多次登顶 Hacker News[^3]。
+### 绑定之争：provider-locked vs provider-agnostic
 
-**2026 年 2 月**，Anthropic 宣布禁止 Claude Free/Pro/Max 的 OAuth token 被第三方工具使用[^4]。社区反应激烈——这相当于直接封杀了第三方 harness 接入 Claude 的最便宜路径。
+这是当前摩擦最大的一个维度。
 
-**2026 年 3 月**，Anthropic 向 OpenCode 发出律师函，要求移除所有 Claude 相关的品牌引用[^5]。
+有些 harness 和特定模型厂商深度绑定：Claude Code 只能用 Claude，Gemini CLI 只能用 Gemini。有些 harness 刻意做到 provider-agnostic：OpenCode 支持 75+ 模型，Aider 支持所有主流 provider，Cline 支持自带 API key 接入任何模型。
 
-结果呢？**律师函反而加速了增长。** OpenCode 在收到律师函后从 95k 涨到 120k+[^6]。
+绑定不一定是坏事——Claude Code 在 Claude 模型上的表现确实比第三方 harness 更优（因为模型和 harness 可以联合优化）。但绑定的代价是：**用户换模型就得换 harness，换 harness 就得换工作流。**
 
-```mermaid
-graph LR
-    A[隐私焦虑<br/>代码发给谁了？] --> D[OpenCode 爆发]
-    B[反垄断情绪<br/>被锁在一个生态里] --> D
-    C[Anthropic 封 OAuth<br/>+ 发律师函] --> D
-    E[免费<br/>接 Copilot 不用额外付费] --> D
-    F[TUI 审美<br/>终端原生，neovim 用户共鸣] --> D
+OpenCode 2026 年初的爆发很大程度上就是这个维度的产物：Anthropic 封 OAuth[^3]、发律师函[^4]，社区用脚投票转向 provider-agnostic 的替代品[^5]。
 
-    style C fill:#ef4444,color:#fff
-    style D fill:#22c55e,color:#fff
-```
+### 商业模式之争
 
-开发者的反应基本上是：**"你说我不能用？那我偏要用开源的。"**
-
-这个故事说明了一件事：harness 的竞争不只是技术问题。它从第一天起就带着**开放性 vs 封闭性**的路线之争。
-
-## 开放性之争，从数据层蔓延到了 Harness 层
-
-如果你读过这个系列的前三篇，会发现一个熟悉的模式：
-
-前三篇讨论的是 **数据层的开放性**——平台愿不愿意把数据开放给 agent？组织愿不愿意批准 agent 访问内部系统？
-
-OpenCode 的故事说明，**同样的对抗正在 harness 层重演**：
-
-- Anthropic 想让 Claude Code 成为使用 Claude 模型的唯一（或最优）harness
-- 社区想要 provider-agnostic 的 harness，不被任何一家模型厂商绑定
-- Anthropic 用法律手段（律师函）和技术手段（封 OAuth）来维护闭环
-- 社区用开源和多 provider 适配来突破闭环
-
-| 层级 | 封闭方的做法 | 开放方的做法 |
+| 模式 | 代表 | 用户付什么 |
 |---|---|---|
-| 数据层（前三篇） | 平台不开放 API、不授权 agent 访问 | CLI/MCP 标准化、逆向接入 |
-| Harness 层（本篇） | 封 OAuth、发律师函、模型+harness 绑定 | 开源 harness、多 provider、本地模型 |
+| 免费 + BYOK | OpenCode、Aider、Cline | 自己的 API key |
+| 订阅制 | Cursor（$20/月）、OpenClaw（$16-32/月） | 月费 |
+| 按用量 | Devin（ACU 计费） | 按 agent 消耗的算力 |
+| 平台内嵌 | Salesforce Agentforce、Copilot Studio | 平台订阅费的一部分 |
+| 免费 + 增值 | OpenCode Zen | 基础免费，优化模型收费 |
 
-这不是巧合。**开放性之争是这个生态的底层张力，它会在每一层重复出现。**
+目前还没有一个模式被证明是"正确答案"。Cursor 的 $2B ARR 说明订阅制在 IDE 类里可以跑通；OpenCode 的 132k 星说明免费 + BYOK 在社区里有巨大号召力；Devin 的按用量模式则是在赌"agent 会变成按需购买的劳动力"。
 
-当模型厂商发现"卖模型"的利润空间越来越小的时候，"卖 harness"（或者通过 harness 锁定用户）就会变成新的商业逻辑。而社区的反应也会和数据层一样：用开源来对抗锁定。
+## 一个把多个维度同时暴露出来的案例
 
-## 怎么评价一个 Harness？
+OpenCode 在 2026 年初的爆发不只是一个"开源 vs 闭源"的故事。它之所以值得单独拿出来说，是因为它在短短三个月里同时触发了好几个竞争维度：
 
-既然 harness 之间已经开始竞争，就会有人问：谁更好？
+- **形态**：终端类 agent 可以和 IDE 类一样有巨大市场
+- **绑定**：Anthropic 封 OAuth + 发律师函[^4]，provider-locked 的风险被直接暴露
+- **商业模式**：免费 + BYOK + Copilot 接入，让用户零成本迁移
+- **社区情绪**：隐私焦虑、反垄断情绪、"律师函反而是最好的广告"[^5]
 
-Terminal Bench 2.0 是目前最常被引用的 coding agent 基准测试之一。上一篇提到 LangChain 用它证明了 harness 优化的效果（同模型提升 13.7 个点）[^7]。但它的局限也很明显：
+两周涨 18,000 星[^6]，三个月从默默无闻到 132k。这个速度本身就说明：harness 竞争不只是产品功能的比拼，用户在意的维度远比 benchmark 分数多得多。
 
-- **榜单测的是特定任务完成率**，不是日常使用体验。一个 agent 在 Terminal Bench 上跑 80%，不代表它日常比跑 60% 的更好用。
-- **提交配置未必是最优**。同一个产品的不同配置可能分数差异很大，但榜单只显示一个数字。
-- **产品目标和榜单目标可能冲突**。偏稳健的产品（更多安全检查、更保守的行为）在 benchmark 上可能反而分低。
+## 怎么看这场竞争
 
-所以，benchmark 能告诉你"在这套任务上、这个配置下的完成率"，但不能告诉你"这个 harness 适不适合你的场景"。
+这不是一场会产生唯一赢家的竞争。
 
-如果要更完整地评价一个 harness，可能至少需要看这几个维度：
+不同形态服务不同场景，不同深度服务不同需求，不同绑定策略服务不同价值观。一个习惯终端的独立开发者和一个使用 Salesforce 的企业团队，他们需要的 harness 不是同一个东西。
 
-| 维度 | 问什么 |
-|---|---|
-| 可扩展性 | 能不能加自定义工具、钩子、规则？ |
-| 可组合性 | 能不能和其他系统（CI/CD、MCP、IDE）组合？ |
-| Provider 无关性 | 换模型是否需要换 harness？ |
-| 可观测性 | agent 在做什么、做到哪了、为什么失败，能不能看到？ |
-| 恢复能力 | 中断之后能不能从断点继续？ |
-| 验证机制 | 有没有独立的结果验证，而不是 agent 自己说"我做完了"？ |
+但有一件事是确定的：**harness 层正在变成 agent 生态里一个独立的、有自己竞争逻辑的价值层。**
 
-这些维度目前还没有标准化的评测框架。但随着 harness 竞争加剧，它们迟早会被量化。
+模型厂商在争夺它（Claude Code、Gemini CLI、Codex CLI），开源社区在争夺它（OpenCode、Aider、Cline），平台公司在争夺它（Cursor、Salesforce、Microsoft），通用 agent 平台也在争夺它（Dify、OpenClaw）。
 
-## 结语
+谁最终拿到这一层的控制权，或者这一层是否会像 Web 框架一样百花齐放而不是赢家通吃——现在还没有答案。
 
-这个系列走到第五篇，讨论的问题一直在变，但底层的张力没变：
-
-- 前三篇问的是：**谁控制数据？**
-- 第四篇问的是：**怎么让 agent 可靠地工作？**
-- 这一篇问的是：**谁控制 harness？**
-
-这三个问题看似不同，其实是同一个母题的三个切面：**在 Agent 时代，控制权在谁手里？**
-
-数据层的答案还在博弈中。Harness 层的答案也在博弈中。唯一可以确定的是：这场竞争才刚刚开始，而且它不会只在技术层面展开。
+但竞争已经开始了。
 
 ---
 
-*这是 "Agent 生态思考" 系列第五篇。前三篇讨论开放性，第四篇讨论可靠性，这一篇讨论生态竞争。同一个母题，三个切面。*
+*这是 "Agent 生态思考" 系列第五篇。*
 
 ---
 
 ## 参考资料
 
-[^1]: Affaan Mustafa, ["Everything Claude Code"](https://github.com/affaan-m/everything-claude-code), GitHub, 114k stars. 自我定位为 "The agent harness performance optimization system"，Anthropic 黑客松冠军项目。
+[^1]: Affaan Mustafa, ["Everything Claude Code"](https://github.com/affaan-m/everything-claude-code), GitHub, 114k stars. 自我定位为 "The agent harness performance optimization system"。
 
-[^2]: ["Oh My OpenAgent"](https://ohmyopenagent.com/zh), GitHub, 44.3k stars. 自我定位为 "The Best Agent Harness"，提供多 agent 编排系统（Sisyphus / Prometheus / Atlas / Metis / Momus）。
+[^2]: ["Oh My OpenAgent"](https://ohmyopenagent.com/zh), GitHub, 44.3k stars. 自我定位为 "The Best Agent Harness"，提供多 agent 编排系统。
 
-[^3]: Miles K, ["OpenCode's January Surge: What Sparked 18,000 New GitHub Stars in Two Weeks"](https://medium.com/@milesk_33/opencodes-january-surge-what-sparked-18-000-new-github-stars-in-two-weeks-7d904cd26844), Medium, Jan 2026.
+[^3]: ["Anthropic OAuth Ban"](https://openclaw.rocks/blog/anthropic-oauth-ban), OpenClaw Blog, Feb 2026.
 
-[^4]: ["Anthropic OAuth Ban"](https://openclaw.rocks/blog/anthropic-oauth-ban), OpenClaw Blog, Feb 2026. Anthropic 明确禁止 Claude Free/Pro/Max 的 OAuth token 被第三方工具使用。
+[^4]: ["Anthropic forces OpenCode to strip Claude integration"](https://theagenttimes.com/articles/anthropic-forces-opencode-to-strip-claude-integration-after--96edcc05), The Agent Times, Mar 2026.
 
-[^5]: ["Anthropic forces OpenCode to strip Claude integration"](https://theagenttimes.com/articles/anthropic-forces-opencode-to-strip-claude-integration-after--96edcc05), The Agent Times, Mar 2026.
+[^5]: ["OpenCode crossed 120K GitHub stars and even Anthropic's legal threats couldn't slow it down"](https://topaiproduct.com/2026/03/20/opencode-crossed-120k-github-stars-and-even-anthropics-legal-threats-couldnt-slow-it-down/), Top AI Product, Mar 2026.
 
-[^6]: ["OpenCode crossed 120K GitHub stars and even Anthropic's legal threats couldn't slow it down"](https://topaiproduct.com/2026/03/20/opencode-crossed-120k-github-stars-and-even-anthropics-legal-threats-couldnt-slow-it-down/), Top AI Product, Mar 2026.
-
-[^7]: ["Improving Deep Agents with harness engineering"](https://blog.langchain.com/improving-deep-agents-with-harness-engineering/), LangChain Blog, Feb 17, 2026.
+[^6]: Miles K, ["OpenCode's January Surge: What Sparked 18,000 New GitHub Stars in Two Weeks"](https://medium.com/@milesk_33/opencodes-january-surge-what-sparked-18-000-new-github-stars-in-two-weeks-7d904cd26844), Medium, Jan 2026.
