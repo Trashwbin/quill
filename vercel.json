@@ -1,5 +1,6 @@
 {
   "framework": "hugo",
+  "buildCommand": "hugo --minify --cleanDestinationDir",
   "build": {
     "env": {
       "HUGO_VERSION": "0.159.0"
