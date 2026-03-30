@@ -4,18 +4,41 @@
   {{- $headers := findRE "<h[1-6].*?>(.|\n])+?</h[1-6]>" .Content -}}
   {{- $has_toc := and (ge (len $headers) 1) (.Param "ShowToc") -}}
 
-  {{- if $has_toc }}
+  {{- /* Determine series pages */ -}}
+  {{- $seriesPages := slice -}}
+  {{- $seriesTaxonomy := .Language.Params.Taxonomies.series | default "series" -}}
+  {{- $seriesTerms := .GetTerms $seriesTaxonomy -}}
+  {{- range $seriesTerms -}}
+    {{- $seriesPages = .Pages -}}
+  {{- end -}}
+  {{- $has_series := gt (len $seriesPages) 1 -}}
+  {{- $has_sidebar := or $has_toc $has_series -}}
+
+  {{- if $has_sidebar }}
   <aside class="sidebar-toc">
     <nav class="sidebar-toc-inner">
+      {{- if $has_toc }}
       <span class="sidebar-toc-title">{{- i18n "toc" | default "Table of Contents" }}</span>
       {{- if (.Param "UseHugoToc") }}
       {{- .TableOfContents -}}
+      {{- end }}
+      {{- end }}
+
+      {{- if $has_series }}
+      <span class="sidebar-series-title">{{ range $seriesTerms }}{{ .LinkTitle }}{{ end }}</span>
+      <ul class="sidebar-series-list">
+        {{- range $seriesPages.Reverse }}
+        <li{{ if eq $.Permalink .Permalink }} class="current"{{ end }}>
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </li>
+        {{- end }}
+      </ul>
       {{- end }}
     </nav>
   </aside>
   {{- end }}
 
-  <article class="post-single {{ if $has_toc }}has-sidebar{{ end }}">
+  <article class="post-single {{ if $has_sidebar }}has-sidebar{{ end }}">
     <header class="post-header">
       {{ partial "breadcrumbs.html" . }}
       <h1 class="post-title entry-hint-parent">

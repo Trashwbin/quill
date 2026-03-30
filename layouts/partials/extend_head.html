@@ -1,32 +1,39 @@
 <style>
+/* Mermaid: natural size, scroll if wider than screen */
 .mermaid {
-  width: 100%;
-  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   text-align: center;
   margin: 1.5em 0;
+  padding: 0.5em 0;
 }
-.mermaid svg {
-  max-width: 100%;
-  height: auto;
-  min-width: 600px;
-}
-@media (max-width: 768px) {
-  .mermaid svg {
-    min-width: 500px;
+
+/* === Responsive content width === */
+
+/* Default (mobile): full width, PaperMod default */
+
+/* Tablet and up: slightly wider */
+@media (min-width: 768px) {
+  :root {
+    --main-width: 780px;
   }
 }
 
+/* Desktop with sidebar */
 @media (min-width: 1280px) {
+  :root {
+    --main-width: 900px;
+  }
+
   .post-with-sidebar {
     display: flex;
     gap: 2rem;
-    max-width: 1100px;
+    max-width: calc(var(--main-width) + 240px + var(--gap) * 2);
     margin: 0 auto;
   }
 
   .sidebar-toc {
-    width: 220px;
+    width: 240px;
     flex-shrink: 0;
     position: relative;
   }
@@ -44,52 +51,114 @@
   .sidebar-toc-inner::-webkit-scrollbar { width: 2px; }
   .sidebar-toc-inner::-webkit-scrollbar-thumb { background: var(--tertiary); border-radius: 2px; }
 
-  .sidebar-toc-title {
-    display: block;
-    font-weight: 600;
-    font-size: 0.85rem;
-    margin-bottom: 0.75rem;
-    color: var(--primary);
-    letter-spacing: 0.02em;
-  }
-
-  .sidebar-toc-inner #TableOfContents ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-  }
-
-  .sidebar-toc-inner #TableOfContents ul ul {
-    padding-left: 0.85rem;
-  }
-
-  .sidebar-toc-inner #TableOfContents a {
-    display: block;
-    padding: 0.2rem 0;
-    color: var(--secondary);
-    text-decoration: none;
-    border-left: 2px solid transparent;
-    padding-left: 0.6rem;
-    transition: all 0.15s ease;
-  }
-
-  .sidebar-toc-inner #TableOfContents a:hover {
-    color: var(--primary);
-    border-left-color: var(--tertiary);
-  }
-
-  .sidebar-toc-inner #TableOfContents a.active {
-    color: var(--primary);
-    border-left-color: var(--primary);
-    font-weight: 500;
-  }
-
   .post-single.has-sidebar {
     flex: 1;
     min-width: 0;
   }
 }
 
+/* Large desktop: wider content */
+@media (min-width: 1600px) {
+  :root {
+    --main-width: 1000px;
+  }
+
+  .post-with-sidebar {
+    max-width: calc(var(--main-width) + 260px + var(--gap) * 2);
+  }
+
+  .sidebar-toc {
+    width: 260px;
+  }
+}
+
+/* === TOC styles === */
+.sidebar-toc-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-toc-inner #TableOfContents ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.sidebar-toc-inner #TableOfContents ul ul {
+  padding-left: 0.85rem;
+}
+
+.sidebar-toc-inner #TableOfContents a {
+  display: block;
+  padding: 0.2rem 0;
+  color: var(--secondary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  padding-left: 0.6rem;
+  transition: all 0.15s ease;
+}
+
+.sidebar-toc-inner #TableOfContents a:hover {
+  color: var(--primary);
+  border-left-color: var(--tertiary);
+}
+
+.sidebar-toc-inner #TableOfContents a.active {
+  color: var(--primary);
+  border-left-color: var(--primary);
+  font-weight: 500;
+}
+
+/* === Series nav styles === */
+.sidebar-series-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--tertiary);
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-series-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.sidebar-series-list li {
+  margin-bottom: 0.3rem;
+}
+
+.sidebar-series-list a {
+  display: block;
+  padding: 0.25rem 0.6rem;
+  color: var(--secondary);
+  text-decoration: none;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  border-left: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.sidebar-series-list a:hover {
+  color: var(--primary);
+  border-left-color: var(--tertiary);
+}
+
+.sidebar-series-list li.current a {
+  color: var(--primary);
+  font-weight: 500;
+  border-left-color: var(--primary);
+}
+
+/* === Hide sidebar on mobile === */
 @media (max-width: 1279px) {
   .sidebar-toc { display: none; }
 }
