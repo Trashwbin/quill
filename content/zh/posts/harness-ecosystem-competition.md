@@ -114,6 +114,20 @@ graph TB
 
 这不是谁更好的问题，而是对 **"harness 该做到什么程度"** 的不同回答。
 
+### 优化层还在快速迭代
+
+ECC 和 OMO 不是终点。2026 年 1 月，韩国开发者 Yeachan Heo 发布了 Oh My ClaudeCode（OMC）[^11]，三个月内从零涨到 14,500 星，单日最高增长 1,400 星。
+
+OMC 的做法是把前两者的思路合在一起，再加上 Claude Code 的 plugin 系统做原生集成：
+
+- **ECC 的部分**：rules、skills、hooks 注入，开箱即用
+- **OMO 的部分**：32 个专职 agent，5 阶段流水线（拆任务 → 写需求 → 并行执行 → 自动验证 → 修复循环）
+- **新增的部分**：通过 tmux 启动多个 Claude Code / Codex / Gemini CLI 实例并行工作，以及 Skill Learning——踩过的坑自动存成文件，下次直接调用
+
+它的核心代码有 12MB TypeScript，不是纯 prompt 配置包。但 32 个 agent 的“智慧”主要还是靠 prompt 定义，不像 OMO 那样每个 agent 有独立的行为逻辑。
+
+OMC 的出现说明两件事：第一，优化层的迭代速度非常快，三个月就能出一代新产品；第二，优化层正在从“给 harness 加配置”演化成“在 harness 之上搭一层完整的工作系统”——深度还在加。
+
 优化层的竞争不只发生在 coding 领域。以 OpenClaw（龙虾）为例，2026 年 3 月，中国市场围绕它的优化层集中爆发：
 
 围绕 OpenClaw 本身的优化层包括：
@@ -132,7 +146,7 @@ graph TB
 
 绑定不一定是坏事——Claude Code 在 Claude 模型上的表现确实比第三方 harness 更优（因为模型和 harness 可以联合优化）。但绑定的代价是：**用户换模型就得换 harness，换 harness 就得换工作流。**
 
-OpenCode 2026 年初的爆发很大程度上就是这个维度的产物：Anthropic 封 OAuth[^3]、发律师函[^4]，社区用脚投票转向 provider-agnostic 的替代品[^5]。两周涨 18,000 星[^6]，三个月从默默无闻到 132k——这个速度本身就说明用户对绑定的敏感度远超预期。
+OpenCode 2026 年初的爆发就是这个维度的典型案例——下一节会展开讲。
 
 ### 商业模式之争
 
@@ -143,6 +157,63 @@ OpenCode 2026 年初的爆发很大程度上就是这个维度的产物：Anthro
 | 免费 + 增值 | OpenCode Zen | 基础免费，优化模型收费 |
 
 目前还没有一个模式被证明是"正确答案"。Cursor 的 $2B ARR 说明订阅制在 IDE 类里可以跑通；OpenCode 的 132k 星说明免费 + BYOK 在社区里有巨大号召力。
+
+## 一个案例：OpenCode 的爆发
+
+OpenCode 的故事值得单独拿出来说，不是因为它技术上做了什么突破，而是因为它在短短三个月里同时触发了好几个竞争维度。
+
+**2026 年 1 月**，OpenCode 两周内涨了 18,000 颗星，多次登顶 Hacker News[^6]。当时它只是一个支持多 provider 的开源终端 coding agent，功能上并没有碾压 Claude Code。
+
+**2026 年 2 月**，Anthropic 宣布禁止 Claude Free/Pro/Max 的 OAuth token 被第三方工具使用[^3]。这相当于直接封杀了第三方 harness 接入 Claude 的最便宜路径。社区反应激烈。
+
+**2026 年 3 月**，Anthropic 向 OpenCode 发出律师函，要求移除所有 Claude 相关的品牌引用[^4]。
+
+结果呢？**律师函反而加速了增长。** OpenCode 在收到律师函后从 95k 涨到 132k[^5]。
+
+```mermaid
+graph LR
+    A[隐私焦虑<br/>代码发给谁了？] --> D[OpenCode 爆发]
+    B[反垄断情绪<br/>被锁在一个生态里] --> D
+    C[Anthropic 封 OAuth<br/>+ 发律师函] --> D
+    E[免费<br/>接 Copilot 不用额外付费] --> D
+
+    style C fill:#ef4444,color:#fff
+    style D fill:#22c55e,color:#fff
+```
+
+这个故事之所以重要，是因为它同时暴露了好几个维度的张力：
+
+- **绑定维度**：Anthropic 用法律和技术手段维护 Claude Code 的独占地位，用户用脚投票
+- **商业模式维度**：免费 + BYOK + Copilot 接入，让用户零成本迁移
+- **形态维度**：终端类 agent 可以和 IDE 类一样有巨大市场
+- **情绪维度**：隐私焦虑、反垄断情绪——用户在意的维度远比 benchmark 分数多
+
+两周 18,000 星，三个月从默默无闻到 132k。这个速度本身就说明：**harness 的竞争不只是产品功能的比拼，用户选择 harness 的理由也不只是"哪个更好用"。**
+
+## 怎么评价一个 Harness
+
+既然 harness 之间已经开始竞争，就会有人问：谁更好？
+
+目前被引用最多的是 Terminal Bench 2.0 这类编码基准测试。但它的局限很明显：
+
+- **榜单测的是特定任务完成率**，不是日常使用体验。一个 agent 在 Terminal Bench 上跑 80%，不代表它日常比跑 60% 的更好用。
+- **提交配置未必是最优**。同一个产品的不同配置可能分数差异很大，但榜单只显示一个数字。
+- **产品策略和榜单目标可能冲突**。偏稳健的产品（更多安全检查、更保守的行为）在 benchmark 上可能反而分低。
+
+所以 benchmark 能告诉你"在这套任务上、这个配置下的完成率"，但不能告诉你"这个 harness 适不适合你的场景"。
+
+如果要更完整地评价一个 harness，可能至少需要看这几个维度：
+
+| 维度 | 问什么 |
+|---|---|
+| 可扩展性 | 能不能加自定义工具、钩子、规则？ |
+| 可组合性 | 能不能和其他系统（CI/CD、MCP、IDE）组合？ |
+| Provider 无关性 | 换模型是否需要换 harness？ |
+| 可观测性 | agent 在做什么、做到哪了、为什么失败，能不能看到？ |
+| 恢复能力 | 中断之后能不能从断点继续？ |
+| 验证机制 | 有没有独立的结果验证，而不是 agent 自己说"我做完了"？ |
+
+这些维度目前还没有标准化的评测框架。但随着 harness 竞争加剧，它们迟早会被量化。
 
 ## 怎么看这场竞争
 
@@ -185,3 +256,5 @@ OpenCode 2026 年初的爆发很大程度上就是这个维度的产物：Anthro
 [^9]: [“飞书发布官方版‘龙虾’智能体”](https://www.yicai.com/news/103095280.html), 第一财经, 2026 年 3 月 19 日.
 
 [^10]: [“Zhipu launches AutoClaw for one-click local AI deployment”](https://autoglm.zhipuai.cn/autoclaw), 智谱 AI, 2026 年 3 月 10 日.
+
+[^11]: Yeachan Heo, ["Oh My ClaudeCode"](https://github.com/yeachan-heo/oh-my-claudecode), GitHub, 14.5k stars. npm 包名为 `oh-my-claude-sisyphus`，提供多 agent 编排、tmux 并行、跨模型调度。
