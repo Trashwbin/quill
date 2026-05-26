@@ -2,6 +2,7 @@
 title: "存储哈希分流"
 date: 2026-05-26T11:28:57+08:00
 draft: false
+series: ["工程实践"]
 tags: ["Go", "对象存储", "Cloudflare R2", "阿里云 OSS", "S3", "灰度路由", "FNV-1a"]
 summary: "线上 R2 网络问题暴露了单对象存储风险。改造方案引入阿里云 OSS，通过 storage.Client 抽象、FNV-1a id 哈希路由和 STORAGE_GRAY_THRESHOLD 控制新上传流量，支持灰度与切回。"
 ---
