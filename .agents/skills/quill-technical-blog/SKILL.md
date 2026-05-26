@@ -8,6 +8,8 @@ description: "Write and edit Quill technical engineering posts: implementation n
 
 Use this skill for technical posts. The reader should leave with a clearer model of how something works and how to reproduce, debug, or adapt it.
 
+Before finalizing, apply [`quill-author-voice`](../quill-author-voice/SKILL.md). Technical posts should read like engineering experience, not generic solution documentation.
+
 ## Positioning
 
 This blog can publish technical writing, not only product or ecosystem analysis. In technical mode, the material is code, commands, configs, logs, APIs, runtime behavior, architecture, verification, and engineering tradeoffs.
@@ -73,6 +75,7 @@ Extract the reusable engineering lesson.
 - Start from a concrete failure, not a generic introduction.
 - Explain "why this works", not only "what to type".
 - Include the failed or weaker approach if it teaches the boundary.
+- When comparing designs, avoid false binaries. List the actual viable options considered and state why the chosen one fits the constraints.
 - Separate local success from production/CI success.
 - Distinguish implementation friction from architectural limitation.
 - End with a pattern, checklist, or principle that can transfer to another project.

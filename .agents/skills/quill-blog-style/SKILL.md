@@ -8,6 +8,8 @@ description: "Write and edit articles for the Quill blog in its established styl
 
 Use this skill when writing, rewriting, outlining, reviewing, translating, or polishing posts for this repository's blog.
 
+Always apply [`quill-author-voice`](../quill-author-voice/SKILL.md) before finalizing a post. The goal is to remove generic AI writing and keep the author's concrete judgment.
+
 First choose the writing mode:
 
 - **Technical engineering post**: use [`quill-technical-blog`](../quill-technical-blog/SKILL.md). The reader should understand, reproduce, debug, or implement something.
@@ -30,6 +32,9 @@ Write like a pragmatic systems-minded programmer.
 - Prefer short paragraphs and high-density conclusion sentences.
 - Keep headings concrete, not literary.
 - Use bold for the main judgment in a section.
+- Prefer narrative logic: concrete constraint -> consequence -> design choice -> tradeoff. Do not keep interrupting the article with "不是 A，而是 B" contrast sentences.
+- Prefer direct declarative sentences. Avoid padded setup, diary-like sequencing, and repeated self-correction.
+- Avoid formulaic contrast phrasing such as "不能只看 X，还要看 Y"; state the actual constraint directly.
 - Do not overuse rhetorical questions; one sharp question is enough.
 - Avoid "可能有一定帮助", "值得关注一下", "未来可期" unless immediately made specific.
 - Avoid empty balance. If there are tradeoffs, name the mechanism behind each side.
