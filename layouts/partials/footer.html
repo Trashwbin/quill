@@ -78,47 +78,132 @@
 
 {{- if (and (eq .Kind "page") (ne .Layout "archives") (ne .Layout "search") (.Param "ShowCodeCopyButtons")) }}
 <script>
-    document.querySelectorAll('pre > code').forEach((codeblock) => {
-        const container = codeblock.parentNode.parentNode;
+    const codeWrapStorageKey = "quill-code-wrap";
+    let isCodeWrapEnabled = localStorage.getItem(codeWrapStorageKey) !== "off";
 
-        const copybutton = document.createElement('button');
-        copybutton.classList.add('copy-code');
-        copybutton.innerHTML = '{{- i18n "code_copy" | default "copy" }}';
+    const copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    const checkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>';
+    const wrapIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M3 12h15a3 3 0 1 1 0 6h-4"></path><path d="m16 16-2 2 2 2"></path><path d="M3 18h7"></path></svg>';
 
-        function copyingDone() {
-            copybutton.innerHTML = '{{- i18n "code_copied" | default "copied!" }}';
-            setTimeout(() => {
-                copybutton.innerHTML = '{{- i18n "code_copy" | default "copy" }}';
-            }, 2000);
+    function getCodeElement(block) {
+        return block.querySelector('code[data-lang], code[class*="language-"]') ||
+            block.querySelector('td:last-child code') ||
+            block.querySelector('pre > code');
+    }
+
+    function getCodeLanguage(codeblock) {
+        const dataLang = codeblock?.getAttribute('data-lang');
+        if (dataLang) {
+            return dataLang;
         }
 
-        copybutton.addEventListener('click', (cb) => {
-            if ('clipboard' in navigator) {
-                navigator.clipboard.writeText(codeblock.textContent);
-                copyingDone();
+        const languageClass = [...(codeblock?.classList || [])].find((className) => className.startsWith('language-'));
+        return languageClass ? languageClass.replace('language-', '') : '';
+    }
+
+    function setCodeWrap(enabled) {
+        isCodeWrapEnabled = enabled;
+        localStorage.setItem(codeWrapStorageKey, enabled ? "on" : "off");
+
+        document.querySelectorAll('.highlight').forEach((block) => {
+            block.classList.toggle('code-wrap-off', !enabled);
+        });
+
+        document.querySelectorAll('pre > code').forEach((codeblock) => {
+            codeblock.parentNode.classList.toggle('code-wrap-off', !enabled);
+        });
+
+        document.querySelectorAll('.code-wrap-toggle').forEach((button) => {
+            button.classList.toggle('is-active', enabled);
+            button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+        });
+    }
+
+    function copyingDone(button) {
+        button.innerHTML = checkIcon;
+        button.classList.add('is-copied');
+        setTimeout(() => {
+            button.innerHTML = copyIcon;
+            button.classList.remove('is-copied');
+        }, 2000);
+    }
+
+    function copyText(text, fallbackCode, button) {
+        if ('clipboard' in navigator) {
+            navigator.clipboard.writeText(text);
+            copyingDone(button);
+            return;
+        }
+
+        const range = document.createRange();
+        range.selectNodeContents(fallbackCode);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        try {
+            document.execCommand('copy');
+            copyingDone(button);
+        } catch (e) { };
+        selection.removeRange(range);
+    }
+
+    function addCodeActions(block, codeblock) {
+        if (block.querySelector('.code-actions')) {
+            return;
+        }
+
+        const language = getCodeLanguage(codeblock);
+        block.classList.add('code-window');
+        if (language) {
+            block.dataset.lang = language;
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'code-actions';
+
+        const copybutton = document.createElement('button');
+        copybutton.type = 'button';
+        copybutton.className = 'code-action copy-code';
+        copybutton.setAttribute('aria-label', '{{- i18n "code_copy" | default "copy" }}');
+        copybutton.setAttribute('title', '{{- i18n "code_copy" | default "copy" }}');
+        copybutton.innerHTML = copyIcon;
+
+        const wrapbutton = document.createElement('button');
+        wrapbutton.type = 'button';
+        wrapbutton.className = 'code-action code-wrap-toggle';
+        wrapbutton.setAttribute('aria-label', 'Toggle line wrap');
+        wrapbutton.setAttribute('title', 'Toggle line wrap');
+        wrapbutton.innerHTML = wrapIcon;
+
+        copybutton.addEventListener('click', () => {
+            const code = codeblock || getCodeElement(block);
+            if (!code) {
                 return;
             }
 
-            const range = document.createRange();
-            range.selectNodeContents(codeblock);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            try {
-                document.execCommand('copy');
-                copyingDone();
-            } catch (e) { };
-            selection.removeRange(range);
+            copyText(code.textContent, code, copybutton);
         });
 
-        if (container.classList.contains("highlight")) {
-            container.appendChild(copybutton);
-        } else if (container.parentNode.firstChild == container) {
-        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
-            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
-        } else {
-            codeblock.parentNode.appendChild(copybutton);
-        }
+        wrapbutton.addEventListener('click', () => {
+            setCodeWrap(!isCodeWrapEnabled);
+        });
+
+        actions.append(copybutton, wrapbutton);
+        block.appendChild(actions);
+    }
+
+    document.querySelectorAll('.highlight').forEach((block) => {
+        addCodeActions(block, getCodeElement(block));
     });
+
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        if (codeblock.closest('.highlight')) {
+            return;
+        }
+
+        addCodeActions(codeblock.parentNode, codeblock);
+    });
+
+    setCodeWrap(isCodeWrapEnabled);
 </script>
 {{- end }}
