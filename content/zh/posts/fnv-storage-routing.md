@@ -1,10 +1,10 @@
 ---
-title: "存储哈希分流"
+title: "对象存储灰度的哈希路由"
 date: 2026-05-26T11:28:57+08:00
 draft: false
 series: ["工程实践"]
 tags: ["Go", "对象存储", "Cloudflare R2", "阿里云 OSS", "S3", "灰度路由", "FNV-1a"]
-summary: "线上 R2 网络问题暴露了单对象存储风险。改造方案引入阿里云 OSS，通过 storage.Client 抽象、FNV-1a id 哈希路由和 STORAGE_GRAY_THRESHOLD 控制新上传流量，支持灰度与切回。"
+summary: "线上 R2 网络问题暴露了单对象存储风险。改造方案引入阿里云 OSS，通过 storage.Client 抽象、FNV-1a id 哈希路由和 threshold 控制新上传流量，支持灰度与切回。"
 ---
 
 这篇记录一次存储单点改造。R2 网络问题暴露了单对象存储风险，后续通过 OSS 做双存储，并用 id 哈希控制新上传流量。重点是新上传请求的灰度、切回，以及同一任务文件不裂脑。
@@ -159,8 +159,8 @@ _, err := client.PutObject(ctx, input)
 
 回退只改灰度阈值。
 
-`STORAGE_GRAY_THRESHOLD=100`，新请求全部走 R2。  
-`STORAGE_GRAY_THRESHOLD=0`，新请求全部走 OSS。
+`threshold = 100`，新请求全部走 R2。  
+`threshold = 0`，新请求全部走 OSS。
 
 OSS 灰度异常时，把阈值调回 100。新请求回到 R2。已写入数据库的 URL 不动。
 
@@ -174,6 +174,6 @@ OSS 灰度异常时，把阈值调回 100。新请求回到 R2。已写入数据
 
 `StorageRouter` 解决路由边界。同一个 id 只会稳定命中一个存储服务。
 
-`STORAGE_GRAY_THRESHOLD` 解决操作边界。灰度、全量切换、回退都通过同一个配置完成。
+`threshold` 解决操作边界。灰度、全量切换、回退都通过同一个配置完成。
 
 最后的方案不复杂，但它补上了单存储架构缺的能力：R2 异常时，新上传请求有路可切；OSS 灰度时，同一任务不会裂脑；线上回退时，不需要改历史 URL。
