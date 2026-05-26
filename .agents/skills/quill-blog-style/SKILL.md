@@ -17,6 +17,13 @@ First choose the writing mode:
 
 Do not force a technical post into a product/ecosystem essay. For technical posts, code, commands, system behavior, constraints, and verification are the main material.
 
+## Series Placement
+
+- Use `series: ["工程实践"]` for concrete technical experience posts: storage routing, workflow reliability, deployment, debugging, infrastructure changes, interface extraction, rollback design, and production implementation notes.
+- Use `series: ["Agent 生态思考"]` only for Agent ecosystem/product/platform analysis posts.
+- Let tags carry the specific technology stack: `Go`, `对象存储`, `Cloudflare R2`, `阿里云 OSS`, `S3`, `FNV-1a`, etc.
+- Do not hide public third-party technology names during sanitization. Redact company names, internal product names, private URLs, credentials, customer data, and sensitive operational details.
+
 ## Voice
 
 Write like a pragmatic systems-minded programmer.
@@ -35,6 +42,8 @@ Write like a pragmatic systems-minded programmer.
 - Prefer narrative logic: concrete constraint -> consequence -> design choice -> tradeoff. Do not keep interrupting the article with "不是 A，而是 B" contrast sentences.
 - Prefer direct declarative sentences. Avoid padded setup, diary-like sequencing, and repeated self-correction.
 - Avoid formulaic contrast phrasing such as "不能只看 X，还要看 Y"; state the actual constraint directly.
+- Avoid fake binaries. When a post needs comparison, list real options and explain the mechanism difference.
+- Use the term that engineers would use in context: `id`, `Client`, `Router`, `threshold`, `URL`. Do not over-explain common technical terms.
 - Do not overuse rhetorical questions; one sharp question is enough.
 - Avoid "可能有一定帮助", "值得关注一下", "未来可期" unless immediately made specific.
 - Avoid empty balance. If there are tradeoffs, name the mechanism behind each side.

@@ -16,6 +16,18 @@ Do not make the writing more "human" by adding jokes, slang, or fake casualness.
 
 For technical posts, default to direct declarative sentences. Avoid diary narration ("I first thought..."), repeated contrast formulas ("not A but B"), and padded transitions. State the fact, then the design consequence.
 
+## Current Technical Syntax
+
+Use this syntax for the author's engineering posts:
+
+- Start with a compact causal chain: incident or constraint -> structural reason -> impact -> chosen implementation direction.
+- Keep the first technical section dense. One paragraph is often better than five short status-like paragraphs.
+- Use professional terms directly when the audience will understand them: `id`, `Client`, `Router`, `threshold`, `URL`, `R2Client`, `OSSClient`.
+- Avoid ambiguous Chinese terms when they collide with engineering meanings. In storage articles, prefer "存储服务" or "存储 Client" over "后端".
+- Compare real options, not two artificial extremes. A good comparison names rollout risk, consistency, failure semantics, cost, or rollback behavior.
+- Explain why a mechanism was chosen after showing the mechanism. For hash routing, show `Router` + threshold first, then explain why FNV-1a is enough.
+- Sanitization should be precise. Keep public third-party names such as Cloudflare R2, 阿里云 OSS, S3, FNV-1a. Remove company names, internal product names, secrets, private URLs, customer data, and sensitive production identifiers.
+
 ## Opening
 
 Do not start with broad context.
@@ -37,6 +49,7 @@ Open with one of:
 
 Avoid chronological diary openings unless the sequence itself matters. Prefer a technical judgment over "I first thought... later realized...".
 Avoid overusing "不是 A，而是 B". It creates a punchy sentence but often breaks narrative flow. Prefer a cause-and-effect chain: constraint -> consequence -> design choice.
+Avoid "不能只看 X，还要看 Y" when a direct sentence works. State the constraint directly.
 
 ## Anti-AI Edits
 
@@ -56,6 +69,8 @@ Replace with concrete transitions:
 - "所以路由粒度要落在..."
 - "这一步的作用是..."
 - "这里不能按单次上传随机..."
+
+Use these sparingly. The final prose should not sound like a list of transition templates.
 
 ## Paragraph Standard
 

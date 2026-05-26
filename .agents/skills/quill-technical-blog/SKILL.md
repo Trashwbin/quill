@@ -31,33 +31,37 @@ The main promise is:
 Use this shape unless the topic requires a different one:
 
 ```markdown
-## 我遇到的问题 / 想解决什么
+## 问题复盘
 
-State the concrete problem, target outcome, environment, and why the obvious route was not enough.
+State the incident, structural cause, impact, and chosen direction in one dense paragraph. Use a causal chain, not diary narration.
 
-## 背景和约束
+## 抽象边界
 
-Name the runtime, framework, dependency, platform, auth model, data shape, version, or deployment constraints.
+Name the interface, data boundary, runtime object, config key, storage/client boundary, or ownership boundary that made the implementation tractable.
 
-## 核心机制
+## 方案取舍
 
-Explain the underlying model. Use a Mermaid diagram when there are moving parts.
+List the real viable options considered. Explain what each option changes in failure mode, rollout risk, cost, consistency, or rollback.
 
-## 实现过程
+## 实现
 
-Show important commands, config, code snippets, file layout, API calls, or patches.
+Show the smallest useful code, command, config, file layout, API call, or patch that exposes the mechanism.
 
-## 踩坑和取舍
+## 接入改造
 
-Explain weaker approaches, failure modes, edge cases, and why this design was chosen.
+Explain the real work needed to migrate callers, remove old assumptions, or route existing entry points through the new boundary.
 
-## 验证
+## 兼容细节 / 踩坑
 
-Show how the result was checked: local command, tests, browser behavior, logs, benchmark, or before/after result.
+Name the protocol, SDK, API, header, permission, or runtime behavior that differed from the happy path.
+
+## 回退 / 验证
+
+Show the operational knob, rollback path, local command, test, log, metric, benchmark, or before/after observation.
 
 ## 结论
 
-Extract the reusable engineering lesson.
+Extract the narrow reusable lesson. Tie it back to the boundary chosen in the implementation.
 ```
 
 ## What To Include
@@ -76,17 +80,18 @@ Extract the reusable engineering lesson.
 - Explain "why this works", not only "what to type".
 - Include the failed or weaker approach if it teaches the boundary.
 - When comparing designs, avoid false binaries. List the actual viable options considered and state why the chosen one fits the constraints.
+- Put implementation before algorithm trivia when the implementation is the point. For example: explain the Router and threshold first, then explain why FNV-1a is enough.
 - Separate local success from production/CI success.
 - Distinguish implementation friction from architectural limitation.
 - End with a pattern, checklist, or principle that can transfer to another project.
 
-## Good Sentence Patterns
+## Sentence Preference
 
-- "问题不在命令本身，而在它运行时拿到的上下文。"
-- "这里真正需要固定的是输入边界，而不是输出格式。"
-- "这个方案能跑，但一旦放到 CI 里会暴露两个问题。"
-- "验证点不是页面能打开，而是状态能否跨 session 延续。"
-- "这不是框架缺陷，而是我们没有把状态边界说清楚。"
+- Use direct declarative sentences.
+- Prefer "线上 R2 出现过短时网络问题，上传、转存、文件访问都受影响。" over broad setup.
+- Prefer "按 id 哈希路由后，同一任务稳定落到同一个存储服务。" over "这不是随机分流，而是稳定路由。"
+- Prefer "阈值为 95 时，95% 新上传走 R2，5% 走 OSS。" over abstract gray-release wording.
+- Avoid repeating "核心是", "真正的问题是", "不是 A，而是 B", "不能只看 X，还要看 Y".
 
 ## Evidence Standard
 
