@@ -4,6 +4,8 @@ date: 2026-10-21T14:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]
+series_order: 1
+reading_next: "/posts/agent-context-management"
 tags: ["AI Agent", "Context Engineering", "Codex", "Pi", "Compaction"]
 summary: "支付代码改到一半，上下文快满了。用同一个任务看清两条路径：Pi 生成文本摘要，再接上近期消息；OpenAI Responses 返回压缩状态，供后续请求继续使用。"
 mermaid: true

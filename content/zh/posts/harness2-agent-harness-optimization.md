@@ -3,12 +3,15 @@ title: "Harness²：Agent 开始自己调 Harness 了"
 date: 2026-10-24T17:05:00+08:00
 draft: false
 series: ["工程实践"]
+reading_prev: "/posts/mem0-memory-system"
 tags: ["AI Agent", "Harness Engineering", "Harness²", "RSI", "评测"]
 summary: "Harness² 让 Agent 根据执行轨迹修改运行配置，再重跑任务、保存经验。以渠道季度报表为例，可以看到 skill 和 guardrail 怎样改变执行行为，以及怎样从成本、归因和泛化三个角度评价自动调优。"
 mermaid: true
 ---
 
 Harness² 让外层 Agent 读取执行轨迹，修改执行 Agent 的运行配置，再让它重跑同一道任务。模型参数保持冻结，修改发生在提示词、skills、工具指引和运行时插件等组件中。[^paper]
+
+[前面的记忆文章](/posts/mem0-memory-system/)讨论经验怎样保存和进入后续模型上下文。Harness² 再往前推进一步：编辑器将执行经验转成配置修改，执行器重跑任务，用新的轨迹和产物检验修改效果。记忆复用由此接上了一条可观察的改进流程。
 
 **完整过程是：执行基线 → 分析轨迹 → 修改配置 → 重跑比较 → 保存经验。**
 
@@ -115,7 +118,7 @@ WorkBuddy Code 的 `testing-hard-router_matching` 是一个路由匹配测试任
 
 ### 插件根据运行状态注入交付提醒
 
-JobBench 的社科研究助理 `task3` 涉及调查数据清洗、跨来源概念对齐和研究简报生成。检索持续消耗预算，临近截止时，交付文件仍待生成。[^cases]
+JobBench 的社科研究 Agent `task3` 涉及调查数据清洗、跨来源概念对齐和研究简报生成。检索持续消耗预算，临近截止时，交付文件仍待生成。[^cases]
 
 ![论文图 19：研究任务中的插件、子代理与领域记忆](https://arxiv.org/html/2610.14224v1/case_jbhooks.svg)
 

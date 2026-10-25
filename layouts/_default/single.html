@@ -10,6 +10,9 @@
   {{- $seriesTerms := .GetTerms $seriesTaxonomy -}}
   {{- range $seriesTerms -}}
     {{- $seriesPages = .Pages -}}
+    {{- if $.Params.series_order -}}
+      {{- $seriesPages = sort $seriesPages "Params.series_order" "desc" -}}
+    {{- end -}}
   {{- end -}}
   {{- $has_series := gt (len $seriesPages) 1 -}}
   {{- $has_sidebar := or $has_toc $has_series -}}

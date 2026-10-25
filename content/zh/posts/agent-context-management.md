@@ -4,6 +4,9 @@ date: 2026-10-22T15:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]
+series_order: 2
+reading_prev: "/posts/agent-context-compaction"
+reading_next: "/posts/codex-cross-session-memory"
 tags: ["AI Agent", "Context Engineering", "Codex", "Pi", "任务恢复"]
 summary: "另一种换窗策略：Agent 先把任务状态写进 Notes，再打开新窗口，按需从 History 读回细节。以支付改造为例，拆解状态提炼、换窗 guard、恢复和程序接管怎样配合。"
 mermaid: true

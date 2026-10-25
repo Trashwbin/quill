@@ -4,6 +4,9 @@ date: 2026-10-23T16:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]
+series_order: 3
+reading_prev: "/posts/agent-context-management"
+reading_next: "/posts/agent-memory-plugins"
 tags: ["AI Agent", "Codex", "Memory", "Context Engineering", "源码分析"]
 summary: "Codex 把历史会话加工成逐条摘要，再整理成新会话的记忆入口。沿着一条用户纠正，追踪两阶段写入、V1/V2 文件结构、冲突整理与按需召回，理解跨会话记忆怎样影响后续工作。"
 mermaid: true
@@ -242,13 +245,15 @@ Codex 还记录记忆使用信号。模型在回复中引用具体会话记忆�
 
 **语义加工与运行时协调分工。** 候选筛选、租约、失败重试、文件同步、差异输入和使用记录维护流水线的持续运行。模型负责语义加工，运行时负责组织和约束这个过程。
 
-三篇文章讨论的机制各有分工：**压缩整理当前工作窗口，Notes 承接同一任务的进度，History 找回原始证据，长期记忆为后续任务提供有范围的背景。**
+前面几篇讨论的机制各有分工：**压缩整理当前工作窗口，Notes 承接同一任务的进度，History 找回原始证据，长期记忆为后续任务提供有范围的背景。**
 
 分析 Agent 的记忆行为时，需要沿着存储位置、写入主体和请求注入时机，确定相关状态所属的层次。
 
+Codex 将会话提取和全局整理组织成两阶段后台流程。沿着这些职责继续比较，还可以看到主模型主动保存、会话结束后提炼和独立模型选择主题等组合。[下一篇](/posts/agent-memory-plugins/)从 Pi 记忆插件展开，观察这些组合怎样接进 Agent 生命周期。
+
 ---
 
-*「Agent 上下文工程」第三篇。系列前文：[本地压缩与远程压缩](/posts/agent-context-compaction/) · [Notes、History 与任务恢复](/posts/agent-context-management/)。*
+*「Agent 上下文工程」第三篇。上一篇：[Notes、History 与任务恢复](/posts/agent-context-management/)；下一篇：[记忆插件怎样工作](/posts/agent-memory-plugins/)。*
 
 ## 参考资料与实验说明
 
