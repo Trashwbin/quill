@@ -1,6 +1,6 @@
 ---
 title: "Agent 怎样跨窗口继续工作：Notes、History 与任务恢复"
-date: 2026-10-22T15:00:00+08:00
+date: 2026-10-12T15:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]

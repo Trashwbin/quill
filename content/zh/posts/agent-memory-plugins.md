@@ -1,6 +1,6 @@
 ---
 title: "Agent 的记忆插件怎样工作：主动保存、后台提炼与按需召回"
-date: 2026-10-25T15:55:00+08:00
+date: 2026-10-18T15:55:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]
@@ -194,7 +194,7 @@ Selector 根据文件名和 description 选择记忆文件。这是一次单独�
 
 ## Claude-mem：从执行记录中生成观察
 
-Claude-mem 提供另一种写入粒度：把工具执行及结果作为观察输入。在本次核对的版本里，`PostToolUse` 和 `PostToolUseFailure` 钩子将事件送入处理路径，`Stop` 触发总结，`SessionStart` 提供记忆上下文。下面聚焦本地 worker 路径。[^cm-hooks]
+Claude-mem 提供另一种写入粒度：把工具执行及结果作为观察输入。在所分析的实现中，`PostToolUse` 和 `PostToolUseFailure` 钩子将事件送入处理路径，`Stop` 触发总结，`SessionStart` 提供记忆上下文。下面聚焦本地 worker 路径。[^cm-hooks]
 
 观察模型按结构化格式生成 title、facts、narrative、concepts 和相关文件等字段，解析器处理输出，存储层持久化观察与会话总结。[^cm-prompt] [^cm-store]
 

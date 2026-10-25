@@ -1,6 +1,6 @@
 ---
 title: "Agent 的上下文满了以后：本地压缩与远程压缩"
-date: 2026-10-21T14:00:00+08:00
+date: 2026-10-09T14:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]

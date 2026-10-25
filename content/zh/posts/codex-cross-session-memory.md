@@ -1,6 +1,6 @@
 ---
 title: "Codex 怎样形成跨会话记忆：从会话提取到按需召回"
-date: 2026-10-23T16:00:00+08:00
+date: 2026-10-15T16:00:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]

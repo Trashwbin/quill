@@ -1,6 +1,6 @@
 ---
 title: "Mem0 怎样管理长期记忆：事实提取、冲突整理与跨任务召回"
-date: 2026-10-25T15:56:00+08:00
+date: 2026-10-21T15:56:00+08:00
 draft: false
 isCJKLanguage: true
 series: ["Agent 上下文工程"]
